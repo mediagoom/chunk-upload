@@ -1,0 +1,5 @@
+
+bin/
+*.*~
+*.swp
+node_modules/

@@ -1,0 +1,7 @@
+src/
+*.*~
+*.swp
+node_modules/
+.gitignore
+gulpfile.js
+sample/

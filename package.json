@@ -1,0 +1,40 @@
+{
+  "name": "chunk-upload",
+  "version": "0.0.1",
+  "description": "A Browser to node.js chunked uploader",
+  "main": "bin\\index.js",
+  "scripts": {
+    "build": "node ./node_modules/gulp/bin/gulp.js build"
+    , "start": "node ./bin/test/server.js"
+    , "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mediagoom/chunk-upload.git"
+  },
+  "keywords": [
+    "upload",
+    "chunk"
+  ],
+  "author": "admin@mediagoom.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mediagoom/chunk-upload/issues"
+  },
+  "homepage": "https://github.com/mediagoom/chunk-upload#readme",
+  "devDependencies": {
+    "browserify": "^14.1.0",
+    "babel-preset-es2015": "^6.22.0",
+    "babelify": "^7.3.0",
+    "eslint": "^3.16.1",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-eslint": "^3.0.1",
+    "gulp-sourcemaps": "^2.4.0",
+    "gulp-util": "^3.0.8",
+    "request": "^2.81.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "express": "^4.14.1"
+  }
+}
