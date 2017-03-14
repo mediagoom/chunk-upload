@@ -103,7 +103,7 @@
 
                 _file_ui_template += '</div>';
 
-                $upm.setOptions({"url" : "http://localhost:3000/upload", "owner" : "uploader"});
+                $upm.setOptions({"url" : window.location.protocol + "//" + window.location.host + "/upload", "owner" : "uploader"});
 
                 $upm.on('completed', function(id) { //
                     //alert("done " + myself.name()); 

@@ -1,6 +1,6 @@
 {
   "name": "chunk-upload",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Browser to node.js chunked uploader",
   "main": "bin\\index.js",
   "scripts": {

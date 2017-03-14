@@ -59,7 +59,7 @@ function server(){
             .pipe(sourcemaps.init())
             .pipe(gubabel( {presets: ["es2015"]} ))
             .pipe(sourcemaps.write("."))
-            .pipe(gulp.dest("bin"));
+            .pipe(gulp.dest("./bin"));
 
 };
 
