@@ -5,3 +5,5 @@ node_modules/
 .gitignore
 gulpfile.js
 sample/
+out.log
+*.tmp

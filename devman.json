@@ -1,0 +1,19 @@
+{
+    "proc" : [
+        {
+              "name"  : "server"
+            , "watch" : ["src/**/*.js", "!src/**/test/*"]
+            , "exec"  : ["npm run build"]
+            , "cmd"   : {"proc": "node", "args": ["./bin/test/server.js"]}
+            , "debug" : false 
+            , "break" : false
+            , "options" : { "env":{
+                                    "NODEPLAYDEFOWNER" : "pippo"
+                                  }
+                          }
+                          
+         }
+    ]
+
+   , "server" : { "url" : "http://localhost:3000", "timeout" : 8000 }
+}

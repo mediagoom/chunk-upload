@@ -33,7 +33,7 @@ function client() {
 
    var bundler = browserify({
                 insertGlobals : true
-                , entries : ['./src/index.js']
+                , entries : ['./src/client.js']
                 , standalone: 'chunkupload'
         }).transform(
                        babel.configure({

@@ -1,6 +1,6 @@
 import chai from "chai";
 import TestFile from "./file.js";
-import Uploader from "../index.js";
+import Uploader from "../client.js";
 import chaiFiles from "chai-files";
  
 chai.use(chaiFiles);
@@ -33,7 +33,7 @@ describe("HTTP REQUEST", () => {
 
         it("upload a file", (done) => {
                   
-            let forig = tval("TESTFILE", "./src/uploader/test/mediagoom.jpg");
+            let forig = tval("TESTFILE", "./src/test/mediagoom.jpg");
             let fdest = "test-file-output.tmp";
                        
             let t = new TestFile(forig);

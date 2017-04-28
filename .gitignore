@@ -4,3 +4,5 @@ bin/
 *.swp
 node_modules/
 uploader/
+out.log
+*.tmp
