@@ -6,7 +6,7 @@ node_js:
 branches:
   except:
   - dev-wia
-before_script:
+before_script: 
 script:
 - npm run build
 - npm start
@@ -15,3 +15,10 @@ script:
 after_script:
 - npm stop
 deploy:
+  provider: npm
+  email: info@mediagoom.com
+  api_key:
+    secure: pYClwA5AloozvpAnxqp7D/VC9HfqwxTovQPFjKxIvAyc9kJZd3ggddN9Ue8wceMLky3C9Qf5a6k94gbH9aERIuPb019FRatTIZnp47DlMkiW3vg7SpGbFub4jDLMHhtDMNVkuqrfrDHFh9SiE+e5V/sTtmf9CaXabb4lAJ9ZxGoUZMQLN+RtQw/xJFwVQOgHjM5pysPDSkwlmXHwD2L4lwuvc8YR6pd/8uf2SuK/NfclRyFiKbVDnexBkx/zE4Qtk3wHDinjQPAjDRvmKwgxvKK+V9nsYaVG8cI8x/hqYt5822S0JkIzS4MWTGWHMFL5juu4XLMGZjhpuhYIHZC4PzO3yqwgiIkbtHucmSb5Jt4I13j9harOByM7ljXpTfyBjSQyFaiZnd/ypZZ0HWOb2054qY5BU/qstfLNOZP6qpM8HF+oYZBdodcpsicSLuqIlrNRAU++/qvGEJc+Kfk4JLKc7znKc1TpMOcwgQfQ8fFZ0YL3KoJhpytb362rWA5sIcQtEBiVkMVouyT6bPn25ymeSs5oajoMT/0Ovoscwwn9KNPK2Fq5zrHb4EU/V2RusRCuHFH0nDQnU5kl6u/civaQWYmhtLHT3yTwvYcfDodY04UFQrx9I+YrltOU+Etfglky/57SiXmi1Eua/TmHl0MD52aNBiAYM0imL3FI7Ek=
+  on:
+    tags: true
+    repo: mediagoom/chunk-upload
