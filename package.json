@@ -5,7 +5,7 @@
   "main": "bin/index.js",
   "scripts": {
     "build": "node ./node_modules/gulp/bin/gulp.js build",
-    "test": "node ./node_modules/mocha/bin/mocha --reporter spec --timeout 800000 ./bin//**/test/index.js",
+    "test": "node ./node_modules/mocha/bin/mocha --reporter spec --timeout 800000 ./bin//**/test/index.js ./bin/test/index.js",
     "start": "node ./node_modules/devman start server",
     "dev": "node ./node_modules/devman",
     "server": "node ./bin/test/server.js",

@@ -8,6 +8,7 @@ branches:
   - dev-wia
 before_script: 
 script:
+- python ./version.py
 - npm run build
 - npm start
 - cat ./out.log
