@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from 'fs';
 
 /**
  * Make a serializable error object.
@@ -16,27 +16,27 @@ import fs from "fs";
 function createError (status, message, type, props) {
     var error = new Error();
 
-  // capture stack trace
+    // capture stack trace
     Error.captureStackTrace(error, createError);
 
-  // set free-form properties
+    // set free-form properties
     for (var prop in props) {
         error[prop] = props[prop];
     }
 
-  // set message
+    // set message
     error.message = message;
 
-  // set status
+    // set status
     error.status = status;
     error.statusCode = status;
 
-  // set type
-    Object.defineProperty(error, "type", {
-        value: type,
-        enumerable: true,
-        writable: true,
-        configurable: true
+    // set type
+    Object.defineProperty(error, 'type', {
+        value: type
+        ,enumerable: true
+        ,writable: true
+        ,configurable: true
     });
 
     return error;
@@ -46,20 +46,20 @@ function createError (status, message, type, props) {
 export default function uplaoder(options){
         
     let opt = {
-        base_path : "./"
-            , limit : (10 * 1024 * 1024)
+        base_path : './'
+        , limit : (10 * 1024 * 1024)
     };
 
     if(null != options)
         opt = Object.assign(opt, options);
 
     function append(p, f, b, complete/*, start*/){
-                //console.log("------- chunk buffer -> ", Buffer.isBuffer(b), b.length);
+        //console.log("------- chunk buffer -> ", Buffer.isBuffer(b), b.length);
 
         fs.mkdir(p, (e) => {
-            if(!e || (e && e.code === "EEXIST")){
+            if(!e || (e && e.code === 'EEXIST')){
                 fs.appendFile(f, b, {encoding : null}, (err) => {complete(err);});           //do something with contents
-                              /* 
+                /* 
                               //console.log("append");
 
                               fs.open(f, 'a', (err, fd) => {
@@ -96,7 +96,7 @@ export default function uplaoder(options){
                               */
 
             } else {
-                        //debug
+                //debug
                 complete(e);
             }
         });
@@ -115,14 +115,14 @@ export default function uplaoder(options){
         let limit     = opt.limit; //10MB
         let length    = 0; 
 
-            // attach listeners
-        stream.on("aborted", onAborted);
-        stream.on("close", cleanup);
-        stream.on("data", onData);
-        stream.on("end", onEnd);
-        stream.on("error", onEnd);
+        // attach listeners
+        stream.on('aborted', onAborted);
+        stream.on('close', cleanup);
+        stream.on('data', onData);
+        stream.on('end', onEnd);
+        stream.on('error', onEnd);
 
-        let cr = req.headers["content-range"];
+        let cr = req.headers['content-range'];
         //let cont = true;
 
         let regexp = /bytes (\d+)-(\d+)\/(\d+)/gi;
@@ -136,7 +136,7 @@ export default function uplaoder(options){
             if(err == null)
                 res.end();
             else
-              done(err);
+                done(err);
         }       
               
         if(null != cr)
@@ -148,12 +148,12 @@ export default function uplaoder(options){
 
             size  = end - start;
 
-                      //console.log("=======>", cr, regexp, m, start, end, total)
+            //console.log("=======>", cr, regexp, m, start, end, total)
 
             buffer = Buffer.alloc(size);
         }
 
-            //If you pass anything to the done() function (except the string 'route'), Express regards the current request as being in error and will skip any remaining non-error handling routing and middleware functions.
+        //If you pass anything to the done() function (except the string 'route'), Express regards the current request as being in error and will skip any remaining non-error handling routing and middleware functions.
 
 
         function done(err)
@@ -163,12 +163,12 @@ export default function uplaoder(options){
 
             if(err != null)
             {
-                          ////console.log("next with error " + err.message);
+                ////console.log("next with error " + err.message);
                 next(err);
             }
             else
             {
-                          ////console.log("next OK");
+                ////console.log("next OK");
                 next();
             }
 
@@ -178,11 +178,11 @@ export default function uplaoder(options){
         function onAborted () {
             if (complete) return;
 
-            done(createError(400, "request aborted", "request.aborted", {
-                code: "ECONNABORTED",
-                expected: length,
-                length: length,
-                received: received
+            done(createError(400, 'request aborted', 'request.aborted', {
+                code: 'ECONNABORTED'
+                ,expected: length
+                ,length: length
+                ,received: received
             }));
         }
 
@@ -198,9 +198,9 @@ export default function uplaoder(options){
             received += chunk.length;
 
             if (limit !== null && received > limit) {
-                done(createError(413, "request entity too large", "entity.too.large", {
-                    limit: limit,
-                    received: received
+                done(createError(413, 'request entity too large', 'entity.too.large', {
+                    limit: limit
+                    ,received: received
                 }));
             }
         }
@@ -214,13 +214,13 @@ export default function uplaoder(options){
 
                 //console.log("---->Invalid Size", size, received, length);
 
-                done(createError(400, "request size did not match content length", "request.size.invalid", {
-                    expected: length,
-                    length: length,
-                    received: received
+                done(createError(400, 'request size did not match content length', 'request.size.invalid', {
+                    expected: length
+                    ,length: length
+                    ,received: received
                 }));
             } else {
-              /*var string = decoder
+                /*var string = decoder
                 ? buffer + (decoder.end() || '')
                 : Buffer.concat(buffer)
               done(null, string)
@@ -228,51 +228,51 @@ export default function uplaoder(options){
 
                 let path = opt.base_path;
 
-              ////console.log(JSON.stringify(req.headers));
+                ////console.log(JSON.stringify(req.headers));
 
                 if(null != req.headers.owner)
                 {
                     path += req.headers.owner;
-                    path += "/";
+                    path += '/';
                 }
 
                 let filepath = path;
 
-                if(null != req.headers["file-name"])
-                    filepath +=  req.headers["file-name"];
+                if(null != req.headers['file-name'])
+                    filepath +=  req.headers['file-name'];
              
 
-                req["uploader"] = filepath; 
+                req['uploader'] = filepath; 
 
 
-              //let cr = req.headers['content-range'];
-              //let cont = true;
+                //let cr = req.headers['content-range'];
+                //let cont = true;
                 if(null == cr)
                 {
-                 //console.log('NO HEADERS');
-                    done(createError(400, "request has invalid headers", "request.size.invalid", {
-                        expected: size,
-                        length: buffer.length,
-                        received: received
+                    //console.log('NO HEADERS');
+                    done(createError(400, 'request has invalid headers', 'request.size.invalid', {
+                        expected: size
+                        ,length: buffer.length
+                        ,received: received
                     }));
                 }
-                      //let regexp = /bytes (\d+)-(\d+)\/(\d+)/gi;
-                     // let m =  cr.match(regexp);
-                      //let start = RegExp.$1;
-                      //let end   = RegExp.$2;
-                      //let total = RegExp.$3;
+                //let regexp = /bytes (\d+)-(\d+)\/(\d+)/gi;
+                // let m =  cr.match(regexp);
+                //let start = RegExp.$1;
+                //let end   = RegExp.$2;
+                //let total = RegExp.$3;
 
-                      //let size  = end - start;
+                //let size  = end - start;
 
-                      ////console.log("=======>", cr, regexp, m, start, end, total, received);
+                ////console.log("=======>", cr, regexp, m, start, end, total, received);
 
                 if(size != received)
                 {
-                              //console.log('ERROR INVALID SIZE', size, buffer.length);
-                    done(createError(400, "request content-size did not match content length", "request.size.invalid", {
-                        expected: size,
-                        length: buffer.length,
-                        received: received
+                    //console.log('ERROR INVALID SIZE', size, buffer.length);
+                    done(createError(400, 'request content-size did not match content length', 'request.size.invalid', {
+                        expected: size
+                        ,length: buffer.length
+                        ,received: received
                     }));
                 }
 
@@ -283,7 +283,7 @@ export default function uplaoder(options){
                 if(end == total)
                 {
 
-                                    //console.log("process end");
+                    //console.log("process end");
                     fend = done;
                 }
 
@@ -291,22 +291,22 @@ export default function uplaoder(options){
 
                 if(0 == start)
                 {
-                              //console.log("new file");
+                    //console.log("new file");
 
                     fs.stat(filepath, (err/*, stat*/) => {
                         if(err == null) {
-                                        //'File exists'
-                                        //console.log('removing', filepath);
+                            //'File exists'
+                            //console.log('removing', filepath);
                             fs.unlink(filepath, (err) => {
                                 if(err != null)
                                     done(err);
                                 else
-                                            {
+                                {
                                     append(path, filepath, buffer, fend, start);
                                 }
                             });
-                        } else if(err.code == "ENOENT") {
-                                        // file does not exist
+                        } else if(err.code == 'ENOENT') {
+                            // file does not exist
                             append(path, filepath, buffer, fend);
                         } else {
                             done(err);
@@ -316,8 +316,8 @@ export default function uplaoder(options){
                               
                 }
                 else
-                      {
-                              //console.log("process file");
+                {
+                    //console.log("process file");
                     append(path, filepath, buffer, fend, start);
 
                                
@@ -329,13 +329,13 @@ export default function uplaoder(options){
         }
 
         function cleanup () {
-           // buffer = null
+            // buffer = null
 
-            stream.removeListener("aborted", onAborted);
-            stream.removeListener("data", onData);
-            stream.removeListener("end", onEnd);
-            stream.removeListener("error", onEnd);
-            stream.removeListener("close", cleanup);
+            stream.removeListener('aborted', onAborted);
+            stream.removeListener('data', onData);
+            stream.removeListener('end', onEnd);
+            stream.removeListener('error', onEnd);
+            stream.removeListener('close', cleanup);
         }
         
     };

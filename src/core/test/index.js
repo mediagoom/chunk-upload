@@ -1,5 +1,5 @@
-import chai from "chai";
-import httprequest from "../../core/httprequest.js";
+import chai from 'chai';
+import httprequest from '../../core/httprequest.js';
  
 var expect = chai.expect;
 
@@ -25,29 +25,29 @@ function check( done, f ) {
 }
 
  
-describe("HTTP REQUEST", () => {
+describe('HTTP REQUEST', () => {
 
-    it("return 200 for google.com", (done) => {
+    it('return 200 for google.com', (done) => {
 
         let r = new httprequest();
                     
-        r.get("https://www.google.com").then(
-                        (res) => {
-                                //console.log('*----------------');
-                                //console.log(res.request.statusCode);
-                                //console.log(JSON.stringify(res.request.headers));
-                                //console.log('----------------');
-                                //console.log(res.body);
-                                //console.log('----------------');
-                                //
-                            check(done, () =>{
-                                expect(res.response.statusCode).to.equal(200);
-                            });
-                        }
-                        , (err) => {
-            done(err);
-        }
-                    );
+        r.get('https://www.google.com').then(
+            (res) => {
+                //console.log('*----------------');
+                //console.log(res.request.statusCode);
+                //console.log(JSON.stringify(res.request.headers));
+                //console.log('----------------');
+                //console.log(res.body);
+                //console.log('----------------');
+                //
+                check(done, () =>{
+                    expect(res.response.statusCode).to.equal(200);
+                });
+            }
+            , (err) => {
+                done(err);
+            }
+        );
     });//return 200
 
    

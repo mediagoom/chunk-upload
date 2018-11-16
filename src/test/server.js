@@ -1,14 +1,14 @@
-import express from "express";
-import uploader from "../server.js";
+import express from 'express';
+import uploader from '../server.js';
 
 var app = express();
 
 var port = process.env.PORT || 3000;
 
-app.use(express.static("sample"));
-app.use("/js", express.static("./bin"));
+app.use(express.static('sample'));
+app.use('/js', express.static('./bin'));
 
-app.use("/upload", uploader());
+app.use('/upload', uploader());
 
 /*
 app.get('/', function (req, res) {
@@ -18,22 +18,22 @@ app.get('/', function (req, res) {
 
 
 
-app.put("/upload", (req, res) => {
+app.put('/upload', (req, res) => {
     
-    console.log("-------------****");
-       //console.log(JSON.stringify(req.headers));
+    console.log('-------------****');
+    //console.log(JSON.stringify(req.headers));
     console.log(req.uploader);
-    console.log("-------------**--");
+    console.log('-------------**--');
 
        
 
-    res.send("OK");
+    res.send('OK');
 
     
 });
 
 app.listen(port, function () {
-    console.log("app listening on port " + port + "!");
+    console.log('app listening on port ' + port + '!');
 });
 
 

@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
 
 export default class TestFile
 {
@@ -14,7 +14,7 @@ export default class TestFile
     {
         let n = this._content.slice(start, end);
             
-            //console.log('***>' , (typeof n), n.constructor.name);
+        //console.log('***>' , (typeof n), n.constructor.name);
 
         return n;
     }
