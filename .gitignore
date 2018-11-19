@@ -6,3 +6,5 @@ node_modules/
 uploader/
 out.log
 *.tmp
+.nyc_output/
+coverage/

@@ -1,4 +1,5 @@
-import request from 'request';
+//import request from 'superagent';
+const request = require('superagent');
 
 function blobToBuffer (blob, cb) {
     if (typeof Blob === 'undefined' || !(blob instanceof Blob)) {
@@ -23,7 +24,36 @@ function blobToBuffer (blob, cb) {
 
 function _req(opts, resolve, reject)
 {
-    request(opts, (error, res, b) => {
+
+    let r = null;
+
+    if('GET' === opts.method)
+    {
+        r = request.get(opts.uri);
+    }
+    else if('PUT' === opts.method)
+    {
+        r = request.put(opts.uri);
+    }
+    else
+    {
+        r = request.post(opts.uri);
+    }
+
+    if(undefined !== opts.headers)
+    {
+        const keys = Object.keys(opts.headers);
+
+        (keys).forEach(element => {
+            r.set(element, opts.headers[element]);
+        });
+    }
+
+    if(undefined !== opts.body)
+        r.send(opts.body);
+
+    r.end( (error, res) => {
+
         if(null != error){
             //console.log("httprequest error", error.message);
             reject(error);
@@ -31,27 +61,23 @@ function _req(opts, resolve, reject)
         else{
             //console.log("httprequest response" , res.statusCode);
 
-            let statusCode = res.statusCode;
+            let statusCode = res.status;
                 
-            if(res.statusCode >= 200 && res.statusCode < 300)
+            if(res.status >= 200 && res.status < 300)
             {
-                resolve( { response: res, body : b} );
+                resolve( { response: res, body : res.body} );
             }
             else
             {
                 let error = new Error('Request Failed.\n' +
                                 `Status Code: ${statusCode}`);
 
-                error['body'] = b;
+                error['body'] = res.body;
                 error['statusCode'] = statusCode;
-                error['headers'] = res.heders;
+                error['headers'] = res.headers;
 
                 reject(error);
-
             }
-                
-
-
         }
     });
 }
@@ -82,12 +108,11 @@ function req(opts)
                 }
             });
         }
-        
-            
+   
     });
 }
 
-export default class httprequest {
+class httprequest {
   
     constructor(options = null)
     {
@@ -126,3 +151,5 @@ export default class httprequest {
         return req(this._opt);
     }
 }
+
+module.exports = httprequest;

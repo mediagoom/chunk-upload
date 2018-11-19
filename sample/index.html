@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="en"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>node chunk-uploader sample</title>
 
-<!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
@@ -81,7 +82,7 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-<script src="js/index.js"></script>
+<script src="lib/chunk-uploader.js"></script>
 <script>
     if(!window.$upm)
         window.$upm = new chunkupload.UploadManager();
@@ -103,10 +104,15 @@
 
                 $upm.setOptions({"url" : window.location.protocol + "//" + window.location.host + "/upload", "owner" : "uploader"});
 
-                $upm.on('completed', function(id) { //
-                    //alert("done " + myself.name()); 
+            $upm.on('error', function(err, id) { 
+                var div = jQuery("#" + id);
+
+                div.append('<div class="alert alert-error"><a href="#" class="close" data-dismiss="alert">&times;</a><strong>Error!</strong> Your file ' + $upm.uploader[id].name() + ' failed ' + err.message + '.</div>');
+
+            });
+
+            $upm.on('completed', function(id) { 
                 
-                //var id = uploader.options.uiid;
                 var div = jQuery("#" + id);
 
                 var info = div.children().first();
@@ -122,54 +128,49 @@
 
                 div.append('<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a><strong>Success!</strong> Your file ' + $upm.uploader[id].name() + ' has been sent successfully.</div>');
 
-                
-                });
+            
+            });
 
 
-
-              $upm.on('new', (id) => {
+            $upm.on('new', (id) => {
                  
-                    var file_list = $('#file_list');
-                    //var uiid = "div_" + new Date().getTime().toString();
-                    
-                    file_list.append(_file_ui_template.replace('$(ID)', id)); 
+                var file_list = $('#file_list');
+                
+                file_list.append(_file_ui_template.replace('$(ID)', id)); 
 
+                var div = jQuery("#" + id);
 
-                    var div = jQuery("#" + id);
+                var info = div.children().first();
+                    info.removeClass('progressview');
 
-                    var info = div.children().first();
-                      info.removeClass('progressview');
+                var txt = info.children().first();
 
-                    var txt = info.children().first();
+                var buttons = div.find(':nth-child(2)').first();
+                    buttons.removeClass('hidden');
 
-                    var buttons = div.find(':nth-child(2)').first();
-                        buttons.removeClass('hidden');
+                var progress = div.children(':nth-child(3)');
+                    progress.removeClass('hidden');
 
-                    var progress = div.children(':nth-child(3)');
-                        progress.removeClass('hidden');
+                var $pause = buttons.find(':first-child').first();
+                var $quit  = buttons.find(':nth-child(2)').first();
+                var $opt   = buttons.find(':nth-child(3)').first();
 
-                    var $pause = buttons.find(':first-child').first();//.find(':first-child');
-                    var $quit  = buttons.find(':nth-child(2)').first();//.find(':first-child');
-                    var $opt   = buttons.find(':nth-child(3)').first();//.find(':first-child');
+                var myself  = $upm.uploader[id];
+                var mypause = $pause;
 
-                    var myself  = $upm.uploader[id];
-                    var mypause = $pause;
-
-                    $pause.click(function () { if (myself.paused()) { myself.resume(); mypause.html('<span class="glyphicon glyphicon-pause"></span> pause'); } else { myself.pause(); mypause.html('<span class="glyphicon glyphicon-play"></span> resume'); } });
+                $pause.click(function () { if (myself.paused()) { myself.resume(); mypause.html('<span class="glyphicon glyphicon-pause"></span> pause'); } else { myself.pause(); mypause.html('<span class="glyphicon glyphicon-play"></span> resume'); } });
 
                 $opt.click(function () {
-                    //txt.text("options clicked");
                     alert('no options available');
-                }
-                );
+                });
 
                 $quit.click(function () {
+                    
                     txt.text("Quitted");
                     myself.pause();
 
-                        $pause.hide();
-                }
-                );
+                    $pause.hide();
+                });
 
                
                 txt.text(myself.name());
@@ -184,9 +185,6 @@
                     progress.find(":first-child :first-child").text(s);
 
                 });
-
-
-
 
             }); 
 

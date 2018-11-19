@@ -1,0 +1,34 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceFolder}\\bin\\index.js"
+        }
+        , {
+            "name": "Debug Mocha unit",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "stopOnEntry": false,
+            "args": ["--no-timeouts", "./test/unit//**/*.js"],
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": null,
+            "console": "integratedTerminal"
+            , "runtimeArgs": [
+                "--preserve-symlinks"
+            ]        
+            
+            , "env": {
+                "NODE_ENV": "development"
+                , "DEBUG" : ""
+            }
+            
+        }
+    ]
+}

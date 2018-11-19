@@ -5,9 +5,7 @@ import globals from 'rollup-plugin-node-globals';
 import babel from 'rollup-plugin-babel';
 import json from 'rollup-plugin-json';
 
-const gglobals = {
-    
-};
+
 
 const gplugins = [
     resolve({
@@ -27,8 +25,16 @@ const gplugins = [
     })
 ];
 
-const g_plugins_server = gplugins.slice(0);
-g_plugins_server[0] = resolve({preferBuiltins : true, browser : false});
+const g_plugins_server = [
+    commonjs()
+    , json()
+    , babel({
+        exclude: 'node_modules/**'
+        , babelrc: false
+        , presets: [['@babel/env', { modules: false }]]
+        , plugins: ['@babel/plugin-transform-object-assign']
+    })
+];
 
 export default [
     {
@@ -40,8 +46,9 @@ export default [
             file: 'lib/chunk-uploader.js'
             , sourcemap: true
             , format: 'iife'
-            , name: 'mgPlay'
-            , globals: gglobals
+            , name: 'chunkupload'
+            , exports: 'named'
+            , globals: []
         }
         
         , plugins: gplugins
@@ -55,10 +62,11 @@ export default [
             file: 'lib/index.js'
             , sourcemap: true
             , format: 'cjs'
-            , globals: gglobals
+            , exports: 'named'
+            , globals: []
         }
     
-        , plugins: gplugins
+        , plugins: g_plugins_server
     }
     , {
         external: []
@@ -68,7 +76,19 @@ export default [
             file: 'bin/index.js'
             , sourcemap: true
             , format: 'cjs'
-            , globals: gglobals
+            , globals: []
+        }
+        , plugins: g_plugins_server
+    }
+    , {
+        external: []
+        , input: 'src/test/server.js'
+        , output: 
+        {
+            file: 'bin/server.js'
+            , sourcemap: true
+            , format: 'cjs'
+            , globals: []
         }
         , plugins: g_plugins_server
     }

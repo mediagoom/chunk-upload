@@ -7,12 +7,14 @@
   "description": "A Browser to node.js chunked uploader",
   "main": "bin/index.js",
   "scripts": {
-    "build": "node ./node_modules/gulp/bin/gulp.js build",
+    "build": "rollup -c",
     "test": "node ./node_modules/mocha/bin/mocha --reporter spec --timeout 800000 ./bin//**/test/index.js ./bin/test/index.js",
     "start": "node ./node_modules/devman start server",
-    "dev": "node ./node_modules/devman",
+    "dev": "node ./node_modules/@mediagoom/devman",
     "server": "node ./bin/test/server.js",
-    "stop": "node ./node_modules/devman stop"
+    "stop": "node ./node_modules/devman stop",
+    "unit": "node ./node_modules/mocha/bin/mocha ./test/unit//**/*.js"
+    , "nyc" : "nyc -x 'src/core/**/*.js' npm run unit"
   },
   "repository": {
     "type": "git",
@@ -40,6 +42,7 @@
     "eslint": "^5.9.0",
     "express": "^4.14.1",
     "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
     "rollup": "^0.65.0",
     "rollup-plugin-babel": "4.0.2",
     "rollup-plugin-commonjs": "^9.1.6",
@@ -51,6 +54,7 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "request": "^2.88.0"
+    "debug": "^4.1.0",
+    "superagent": "^4.0.0"
   }
 }

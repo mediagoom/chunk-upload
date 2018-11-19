@@ -1,6 +1,8 @@
-import { EventEmitter } from 'events';
-import httprequest from './core/httprequest';
+//import { EventEmitter } from 'events';
+//import httprequest from './core/httprequest';
 
+const EventEmitter = require('events');
+const httprequest = require('./core/httprequest');
 
 /**
 * Utility method to format bytes into the most logical magnitude (KB, MB,
@@ -25,81 +27,90 @@ function upload(upl)
     let self = upl;
 
     setTimeout(function () {
-            
-        // Prevent range overflow
-        if (self._range_end > self._file.size) {
-            //self.range_end = self.file_size;
-            throw 'Invalid Range On Upload!';
-        }
+        try{
+            // Prevent range overflow
+            if (self._range_end > self._file.size) {
+                //self.range_end = self.file_size;
+                throw 'Invalid Range On Upload!';
+            }
 
-        //console.log("re2 " + self._range_end + " " + self._range_start + " " + self._opt.chunk_size);
+            //console.log("re2 " + self._range_end + " " + self._range_start + " " + self._opt.chunk_size);
 
-        let chunk = self._file[self._slice_method](self._range_start, self._range_end);
-        let chunk_id = Math.ceil(self._range_start / self._opt.chunk_size);
-            
-        let opt   = {headers:
-        {
-            'Content-Type' : 'application/octet-stream'
-            , 'Content-Range': 'bytes ' + self._range_start 
-                                        + '-' + self._range_end + '/' + self._file.size
-            , 'file-name': self._opt.name
-            , 'chunkid' : chunk_id.toString()
-        }
-        };
+            let chunk = self._file[self._slice_method](self._range_start, self._range_end);
+            let chunk_id = Math.ceil(self._range_start / self._opt.chunk_size);
+                
+            let opt   = {headers:
+            {
+                'Content-Type' : 'application/octet-stream'
+                , 'Content-Range': 'bytes ' + self._range_start 
+                                            + '-' + self._range_end + '/' + self._file.size
+                , 'file-name': self._opt.name
+                , 'chunkid' : chunk_id.toString()
+            }
+            };
 
-        if(null != self._opt.owner){
-            opt.headers['owner'] = self._opt.owner;
-        }
-        if(null != self._opt.id) {
-            opt.headers['fileid'] = self._opt.id;
-        } 
-                           
-        let http = new httprequest(opt);
-        http.put(self._opt.url, chunk).then(
-            (/*res*/) => {
-                //console.log("re3 " + self._range_end + " " + self._range_start + " " + self._opt.chunk_size);
+            if(null != self._opt.owner){
+                opt.headers['owner'] = self._opt.owner;
+            }
+            if(null != self._opt.id) {
+                opt.headers['fileid'] = self._opt.id;
+            } 
+                            
+            let http = self.http_request(opt);
+            http.put(self._opt.url, chunk).then(
+                (/*res*/) => {
+                    //console.log("re3 " + self._range_end + " " + self._range_start + " " + self._opt.chunk_size);
 
-                let n = new Number((self._range_start / self._opt.chunk_size) / (self._file.size / self._opt.chunk_size) * 100);
+                    let n = new Number((self._range_start / self._opt.chunk_size) / (self._file.size / self._opt.chunk_size) * 100);
 
-                let sn = n.toFixed(2);
-                self._onProgress(sn);
+                    let sn = n.toFixed(2);
+                    
 
-                // If the end range is already the same size as our file, we
-                // can assume that our last chunk has been processed and exit
-                // out of the function.
-                if (self._range_end === self._file.size) {
-                    //console.log("upload completed"); 
-                    self._onUploadComplete();
-                }
-                else
-                {
+                    // If the end range is already the same size as our file, we
+                    // can assume that our last chunk has been processed and exit
+                    // out of the function.
+                    if (self._range_end === self._file.size) {
+                        //console.log("upload completed"); 
+                        self._onUploadComplete();
+                    }
+                    else
+                    {
 
-                    // Update our ranges
-                    self._range_start = self._range_end;
-                    self._range_end = self._range_start + self._opt.chunk_size;
+                        // Update our ranges
+                        self._range_start = self._range_end;
+                        self._range_end = self._range_start + self._opt.chunk_size;
 
-                    // Prevent range overflow
-                    if (self._range_end > self._file.size) {
-                        self._range_end = self._file.size;
+                        // Prevent range overflow
+                        if (self._range_end > self._file.size) {
+                            self._range_end = self._file.size;
+                        }
+
+                        // Continue as long as we aren't paused
+                        if (!self._is_paused) {
+                            upload(self);
+                        }                                
+                                            
+                                                
                     }
 
-                    // Continue as long as we aren't paused
-                    if (!self._is_paused) {
-                        upload(self);
-                    }                                
-                                        
-                                            
+                    self._onProgress(sn);
                 }
-            }
-            ,  (err) => {self._raise_error(err);}
-        );
+                ,  (err) => {self._raise_error(err);}
+            );
+
+        }catch(err)
+        {
+            self._raise_error(err);
+        }
             
             
     }, 20);
 }
 
-export default class Uploader extends EventEmitter {
+class Uploader extends EventEmitter {
+    
     constructor(file, options) {
+        
         super();
     
         this._file        = file;
@@ -141,7 +152,19 @@ export default class Uploader extends EventEmitter {
 
         //console.log("re1 " + this._range_end + " " + this._range_start + " " + this._opt.chunk_size);
         //
-        this.status       = 'inizialized';
+        this.status       = 'initialized';
+    }
+
+    http_request(request_options)
+    {
+        if(undefined === this._opt.http_request)
+        {
+            return new httprequest(request_options);
+        }
+        else
+        {
+            return this._opt.http_request(request_options);
+        }
     }
 
     name() {return this._opt.name;}
@@ -185,7 +208,8 @@ export default class Uploader extends EventEmitter {
 }
 
 
-export class UploadManager extends EventEmitter {
+class UploadManager extends EventEmitter {
+    
     constructor(options) {
  
         super();
@@ -218,16 +242,17 @@ export class UploadManager extends EventEmitter {
     {
         if(null != this.uploader[id])
         {
-            throw 'uploader alredy exist';
+            throw 'uploader already exist';
         }
 
         let op = Object.assign(this._opt, options);
         let kid = id;
+        
         let up = new Uploader(file, op);
+        
         up.on('completed', () => {this._onUploadComplete(kid);});
         up.on('error', (err) => {this._raise_error(err, kid);});
         up.on('progress', (n) => { this._onProgress(n, kid);});
-
 
         this.uploader[id] = up;
 
@@ -288,6 +313,7 @@ export class UploadManager extends EventEmitter {
             id = id.replace('.', '_');
             id = id.replace(' ', '_');
             id = id.replace('&', '_');
+            id = id.replace(' ', '_');
                         
             this.add(file, id);
             this.emit('new', id);
@@ -297,5 +323,10 @@ export class UploadManager extends EventEmitter {
     }
 
 }
+
+module.exports = {
+    default : Uploader
+    , UploadManager
+};
 
 
