@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
-export default class TestFile
+module.exports = class TestFile
 {
     constructor(filepath)
     {
@@ -20,4 +20,4 @@ export default class TestFile
     }
 
     
-}
+};

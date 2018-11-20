@@ -1,7 +1,7 @@
-import chai from 'chai';
-import TestFile from './file.js';
-import Uploader from '../client.js';
-import chaiFiles from 'chai-files';
+const chai = require('chai');
+const TestFile = require('./file.js');
+const Uploader = require('../client.js').default;
+const chaiFiles = require('chai-files');
  
 chai.use(chaiFiles);
 var expect = chai.expect;

@@ -13,8 +13,11 @@ script:
 - npm start
 - cat ./out.log
 - npm test
-after_script:
 - npm stop
+- cat ./out.log
+- npm run cov-text
+after_script:
+
 deploy:
   provider: npm
   email: info@mediagoom.com

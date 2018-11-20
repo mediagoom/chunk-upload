@@ -1,4 +1,5 @@
-import fs from 'fs';
+//import fs from 'fs';
+const fs = require('fs');
 
 /**
  * Make a serializable error object.
@@ -43,7 +44,7 @@ function createError (status, message, type, props) {
 }
 
 
-export default function uplaoder(options){
+function uplaoder(options){
         
     let opt = {
         base_path : './'
@@ -340,4 +341,6 @@ export default function uplaoder(options){
         
     };
 }
+
+module.exports = uplaoder;
 

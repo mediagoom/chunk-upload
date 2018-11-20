@@ -1,5 +1,7 @@
-import express from 'express';
-import uploader from '../server.js';
+#!/usr/bin/env node
+
+const express = require('express');
+const uploader = require('../server.js');
 
 var app = express();
 
@@ -24,12 +26,19 @@ app.put('/upload', (req, res) => {
     //console.log(JSON.stringify(req.headers));
     console.log(req.uploader);
     console.log('-------------**--');
-
-       
-
-    res.send('OK');
-
     
+    res.send('OK');
+    
+});
+
+process.on('SIGINT', function() {
+    console.log('RECEIVED SIGINT');
+    process.exit(0);
+});
+
+process.on('SIGTERM', function() {
+    console.log('RECEIVED SIGTERM');
+    process.exit(0);
 });
 
 app.listen(port, function () {

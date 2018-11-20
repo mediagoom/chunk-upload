@@ -53,7 +53,7 @@ export default [
         
         , plugins: gplugins
     }
-    , {
+    /*, {
         external: []
         , input: 'src/client.js'
 
@@ -92,5 +92,6 @@ export default [
         }
         , plugins: g_plugins_server
     }
+    */
     ,]
 ;
