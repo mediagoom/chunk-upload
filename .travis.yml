@@ -6,10 +6,15 @@ node_js:
 branches:
   except:
   - dev-wia
+install:
+- npm install
+- npm install --only=dev
+- npm install coveralls codecov
 before_script: 
 script:
 - python ./version.py
 - npm run build
+- npm run nyc
 - npm start
 - cat ./out.log
 - npm test
@@ -17,6 +22,8 @@ script:
 - npm stop
 - cat ./out.log
 - npm run cov-text
+- ./node_modules/.bin/nyc report --reporter=text-lcov | coveralls
+- ./node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov && codecov
 after_script:
 
 deploy:
