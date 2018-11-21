@@ -5,7 +5,7 @@
           , "watch" : ["src/server.js"]
           , "exec"  : []
           , "cmd"   : {"proc": "node", "args": ["./node_modules/nyc/bin/nyc.js"
-                , "-t", ".nyc_server"
+                , "--clean", "false"
                 , "node", "./src/test/server.js"
                 ]}
           , "debug" : false 

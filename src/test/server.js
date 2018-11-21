@@ -5,6 +5,8 @@ const uploader = require('../server.js');
 
 var app = express();
 
+let server = undefined;
+
 var port = process.env.PORT || 3000;
 
 app.use(express.static('sample'));
@@ -33,15 +35,15 @@ app.put('/upload', (req, res) => {
 
 process.on('SIGINT', function() {
     console.log('RECEIVED SIGINT');
-    process.exit(0);
+    server.close();
 });
 
 process.on('SIGTERM', function() {
     console.log('RECEIVED SIGTERM');
-    process.exit(0);
+    server.close();
 });
 
-app.listen(port, function () {
+server = app.listen(port, function () {
     console.log('app listening on port ' + port + '!');
 });
 

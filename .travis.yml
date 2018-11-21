@@ -1,8 +1,8 @@
 language: node_js
 node_js:
-- 6
-- 5
-- 4
+- 10
+- 9
+- 8
 branches:
   except:
   - dev-wia
@@ -13,6 +13,7 @@ script:
 - npm start
 - cat ./out.log
 - npm test
+- npm run cov-client
 - npm stop
 - cat ./out.log
 - npm run cov-text
