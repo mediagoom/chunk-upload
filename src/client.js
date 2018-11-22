@@ -256,6 +256,8 @@ class UploadManager extends EventEmitter {
 
         this.uploader[id] = up;
 
+        this.emit('new', id);
+
         return up;
     }
 
@@ -316,8 +318,7 @@ class UploadManager extends EventEmitter {
             id = id.replace(' ', '_');
                         
             this.add(file, id);
-            this.emit('new', id);
-
+            
         }
         
     }
