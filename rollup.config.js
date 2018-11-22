@@ -79,7 +79,7 @@ export default [
     }
     , {
         external: []
-        , input: 'src/ui/index.js'
+        , input: 'src/UI/index.js'
         , output: 
       
         {
