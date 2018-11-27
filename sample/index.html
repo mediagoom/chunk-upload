@@ -34,11 +34,35 @@
 
     </div>
 
+    <div style="    border: 0.07em solid;
+    border-radius: 0.2em;
+    cursor: pointer;
+    "
+    onclick="subcov()"
+    >
+    Submit Coverage
+    </div>
+
   </div>
 
 
 <script>
-    chunkuploadui.build('uploader_host');
+    var upm = chunkuploadui.build('uploader_host');
+
+    function subcov()
+    {
+      if(undefined !== window.__coverage__)
+      {
+        var blob = new Blob([JSON.stringify(window.__coverage__, null, 2)], {type : 'application/json'});
+            blob.name = 'coverage.json';
+          
+            upm.add(blob, 'coverage');
+      }
+      else
+      {
+        alert("no coverage");
+      }
+    }
 </script>
 
 </html>

@@ -1,4 +1,4 @@
-/* global window, document */
+/* global window, document, alert */
 import './style.scss';
 import * as uploader from '../client.js';
 
@@ -6,6 +6,7 @@ const default_options = {
     url : window.location.protocol + '//' + window.location.host + '/upload'
     , owner : 'uploader'
     , upm_global : '__upm__'
+    , options_function : () => alert('no options available')
     , file_input_id : '__file_input'
     , file_list_id: '__file_list__'
     , styled_file_id : '__styled_file_input__'
@@ -16,7 +17,6 @@ const default_options = {
     , class_uploader_folder: '__uploader_folder_select'
     , class_uploader_folder_click: '__uploader_folder_click'
     , class_uploader_folder_img: '__uploader_folder_img'
-    , class_hidden : '__uploader_hidden'
     , class_uploader_button : '__uploader_button'
     , class_uploader_file_list : '__uploader_file_list'
     , class_uploader_percentage : '__uploader_percentage'
@@ -25,6 +25,15 @@ const default_options = {
         , pause : '__uploader_btn_img_pause'
         , play : '__uploader_btn_img_play'
         , quit: '__uploader_btn_img_quit'
+    }
+    , class : {
+        notify : {
+            main : '__uploader_notify'
+            , error: '__uploader_notify_error'
+            , success: '__uploader_notify_success'  
+            , quitted: '__uploader_notify_quitted' 
+        }
+        , hidden : '__uploader_hidden'
     }
 };
 
@@ -70,6 +79,7 @@ function file_ui(id, options)
     div.setAttributeNode(cls);
 
     let file_ui_template = `    <li><span>&nbsp;</span></li>
+
                                 <li class=""> 
                                     <a class="${options.class_uploader_button}"><span class="${options.class_btn.play}"></span> <span>start</span></a>
                                     <a class="${options.class_uploader_button}"><span class="${options.class_btn.quit}"></span> <span>quit</span></a>
@@ -77,9 +87,12 @@ function file_ui(id, options)
                                 </li>
 
                                 <li  class="${options.class_uploader_percentage}">
-                                    <div class="" style="width: 0%;"><span></span></div>
+                                    <div class="" style="width: 0%;"></div>
+                                        <span></span>
                                 </li>
-                                <li class="${options.class_hidden}">
+
+                                <li class="${options.class.hidden}">
+                                    <div class="${options.class.notify.main}"></div>
                                 </li>
                             `;
 
@@ -94,6 +107,23 @@ function toggle_button_visible(btn, hide)
 
 }
 
+function update_start_ui(play, my_pause, options)
+{
+    if(!play)
+    {
+        my_pause.classList.remove(options.class_btn.pause);
+        my_pause.classList.add(options.class_btn.play);
+        my_pause.nextElementSibling.innerText = 'start';
+    }
+    else
+    {
+        my_pause.classList.remove(options.class_btn.play);
+        my_pause.classList.add(options.class_btn.pause);
+        my_pause.nextElementSibling.innerText = 'pause';
+    }
+
+    
+}
 
 
 function new_file(id, options)
@@ -114,10 +144,14 @@ function new_file(id, options)
     //buttons.removeClass('hidden');
    
     const progress = div.children[2];
+
+    const notify = div.children[3];
+    const notify_txt = notify.children[0];
  
     const $pause = buttons.children[0];
     const $quit  = buttons.children[1];
     const $opt   = buttons.children[2];
+    
 
     const myself  = window[options.upm_global].uploader[id];
     const my_pause = $pause.children[0];
@@ -126,31 +160,32 @@ function new_file(id, options)
         if (myself.paused()) 
         {
             myself.resume();
-                        
+            notify.classList.add(options.class.hidden);
              
         } else { 
 
             myself.pause(); 
-            
         } 
 
-        if(my_pause.classList.toggle(options.class_btn.play))
-            my_pause.nextElementSibling.innerText = 'start';
-
-        if(my_pause.classList.toggle(options.class_btn.pause))
-            my_pause.nextElementSibling.innerText = 'pause';
+        update_start_ui(!myself.paused(), my_pause, options);
+ 
     });
 
     $opt.addEventListener('click', function () {
-        alert('no options available');
+        options.options_function(myself);
     });
 
     $quit.addEventListener('click', function () {
-            
-        txt.innerHTML = 'Quitted';
+        notify_txt.innerText = 'Upload Quitted.';    
+        
         myself.pause();
 
-        toggle_button_visible($pause, false, options);
+        notify.classList.toggle(options.class.hidden);
+        notify.previousElementSibling.classList.toggle(options.class.hidden);
+        notify.previousElementSibling.previousElementSibling.classList.toggle(options.class.hidden); 
+        
+        
+        notify.children[0].classList.add(options.class.notify.quitted); 
     });
 
        
@@ -162,49 +197,44 @@ function new_file(id, options)
         var x = new String(d.toFixed(0)) + '%';
         var s = new String(d.toFixed(2)) + '%';
 
-        //progress.find(':first-child').css('width', x);
         progress.children[0].style.width = x;
-        progress.children[0].children[0].innerHTML = s;
+        progress.children[1].innerHTML = s;
+    });
+
+    myself.on('completed', () => {
+        notify_txt.innerText = 'Upload Completed.';
+        
+        notify.classList.toggle(options.class.hidden);
+        notify.previousElementSibling.classList.toggle(options.class.hidden);
+        notify.previousElementSibling.previousElementSibling.classList.toggle(options.class.hidden); 
+        
+        notify.children[0].classList.remove(options.class.notify.error); 
+        notify.children[0].classList.add(options.class.notify.success); 
+    });
+
+    myself.on('error', (err) => {
+        
+        notify_txt.innerText = 'Error: ' + err.message;
+        update_start_ui(false, my_pause, options);
+
+        notify.classList.toggle(options.class.hidden); 
+        notify.children[0].classList.add(options.class.notify.error);  
     });
 
     
 }
 
-function onerror(err, id, options) 
+
+function onerror(err) 
 { 
-    //var div = jQuery("#" + id);
-
-    //div.append('<div class="alert alert-error"><a href="#" class="close" data-dismiss="alert">&times;</a><strong>Error!</strong> Your file ' + $upm.uploader[id].name() + ' failed ' + err.message + '.</div>');
-
+    console.error(err.message, err.stack);
 }
 
+/*
 function on_completed(id, options) { 
-    
-    /*
-    var div = jQuery("#" + id);
-
-    var info = div.children().first();
-    info.addClass('hidden');
-
-    var txt = info.children().first();
-
-    var buttons = div.find(':nth-child(2)').first();
-    buttons.addClass('hidden');
-
-    var progress = div.children(':nth-child(3)');
-    progress.addClass('hidden');
-
-    div.append('<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a><strong>Success!</strong> Your file ' + $upm.uploader[id].name() + ' has been sent successfully.</div>');
-
-    */
-
-    const div = document.getElementById(id);
-
-    const buttons = div.children[1];
-
-    buttons.innerHTML = 'completed';
 
 }
+*/
 
 function click_file(file_input_id)
 {
@@ -233,8 +263,13 @@ export function build(div_id, options)
         const styled_file = document.getElementById(options.styled_file_id);
         styled_file.addEventListener('click', () => click_file(options.file_input_id) );
 
+        
         upm.on('error', (err, id) => onerror(err, id, options));
+        /*
         upm.on('completed', (id) => on_completed(id, options));
+        */
 
     }
+
+    return window[options.upm_global];
 }

@@ -84,7 +84,7 @@ const g_plugins_server = [
 */
 
 export default [
-    /*{
+    {
         external: []
         , input: 'src/client.js'
         , output: 
@@ -100,7 +100,7 @@ export default [
         
         , plugins: g_plugins
     }
-    ,*/ {
+    , {
         external: []
         , input: 'src/UI/index.js'
         , output: 

@@ -164,7 +164,11 @@ $text-color:  #42b983;
 {
     border-radius: 0.2em;
     background-color: lightgrey;
+    height: 2em;
+    position: relative;
     div{
+        border-radius: 0.2em;
+        position: absolute;
         width: 10em;
         height: 2em;
         //margin: 1rem auto;
@@ -180,6 +184,14 @@ $text-color:  #42b983;
         animation: __uploader_barber_pole 10s linear infinite;
 
         text-align: center;
+        z-index: 1;
+    }
+
+    span {
+        z-index: 100;
+        position: absolute;
+        left: 0;
+        width: 100%;
     }
 
           
@@ -228,4 +240,29 @@ $text-color:  #42b983;
       @include button-image('quit.svg');
   }
 
+
+ .__uploader_notify
+ {
+    border: 0.07em solid;
+    border-radius: 0.2em;
+    
+ }
+ 
+ .__uploader_notify_error
+ {
+    border-color: red;
+    background-color: lightcoral;
+ }
+
+ .__uploader_notify_quitted
+ {
+    border-color: yellow;
+    background-color: lightyellow;
+ }
+ 
+ .__uploader_notify_success
+ {
+    border-color: $text-color;
+    background-color: $bg-color;
+ }
 
