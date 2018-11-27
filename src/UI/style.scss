@@ -3,6 +3,10 @@
 $bg-color : rgba(64, 170, 107, 0.30);
 $text-color:  #42b983;
 
+.__uploader_hidden
+{
+    display: none;
+}
 
 .__uploader_host
 {
@@ -33,6 +37,7 @@ $text-color:  #42b983;
     background-color: $bg-color;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 1em;
     width:100%;
     border-radius: 4px;
     position: relative;
@@ -49,10 +54,34 @@ $text-color:  #42b983;
     color : $text-color;
 }
 
+%flex
+{
+    display: flex;
+    
+    justify-content: flex-start;
+    align-items: center;
+
+    //list-style: square inside svg($value1 : 'upload-folder-icon.svg');
+    list-style: none;
+
+    margin-block-start: 0em;
+    padding-inline-start: 0em;
+
+    a {
+        text-decoration: none;
+        color: $text-color;
+            &:visited
+            {
+                color: $text-color;
+            }
+        
+    }
+}
+
 .__uploader_folder_select
 {
-    border: 1px solid;
-    border-radius: 4px;
+    border: 0.1em solid;
+    border-radius: 0.4em;
     border-color: $text-color;
     margin-left: auto;
     margin-right: auto;
@@ -66,29 +95,137 @@ $text-color:  #42b983;
     padding-right: 0.2em;
     cursor: pointer;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
+    @extend %flex;
+    flex-direction: row;
 
-    a {
-        text-decoration: none;
-        color: $text-color;
-            &:visited
-            {
-                color: $text-color;
-            }
-        
-    }
+    
 }
-
 
 .__uploader_folder_click
 {
     display:inline;
     top: -0.3em;
     position: relative;
+    margin-top: 0.3em;
    
 }
 
+.__uploader_folder_img
+{
+    list-style: none;
+
+    padding: 1.2em 1.2em 1.2em 1.2em;
+    margin: 0;
+    margin-bottom: .5em;
+    margin-left: 1em;
+	
+
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: 2em;
+    
+    background-image: svg($value1 : 'upload-folder-icon.svg');
+    filter: invert(100%) brightness(0.1) sepia(1) hue-rotate(124deg) saturate(45);
+
+}
+
+.__uploader_button
+{
+    border: 0.07em solid;
+    border-radius: 0.2em;
+    border-color: $text-color;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+    width: 18em;
+    height: 2em;
+    padding: 0.1em;
+    cursor: pointer;
+
+    display: table-cell;
+    padding-top: .7em;
+    text-align: center;
+}
+
+.__uploader_file_list
+{
+    @extend %flex;
+    flex-direction: column;
+
+    li {
+        margin: 0.2em 0em 0.2em 0em;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.__uploader_percentage
+{
+    border-radius: 0.2em;
+    background-color: lightgrey;
+    div{
+        width: 10em;
+        height: 2em;
+        //margin: 1rem auto;
+        background-image: 
+            repeating-linear-gradient(
+            45deg, 
+            $bg-color , 
+            $bg-color  1rem,
+            $text-color 1rem,
+            $text-color 2rem
+            );
+        background-size: 200% 200%;
+        animation: __uploader_barber_pole 10s linear infinite;
+
+        text-align: center;
+    }
+
+          
+}
+
+@keyframes __uploader_barber_pole {
+    100% {
+      background-position: 100% 100%;
+    }
+  }
+
+  @mixin button-image($file) {
+    
+    padding: 0em .8em 0em 1.2em;
+    margin-left: -1.4em; 
+    margin: 0;
+    margin-bottom: .5em;
+    
+	
+
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: 2em;
+    
+    background-image: svg($value1 : $file);
+    filter: invert(100%) brightness(0.1) sepia(1) hue-rotate(124deg) saturate(45);
+  }
+
+  .__uploader_btn_img_options
+  {
+      @include button-image('options.svg');
+  }
+
+  .__uploader_btn_img_pause
+  {
+      @include button-image('pause.svg');
+  }
+
+  .__uploader_btn_img_play
+  {
+      @include button-image('play.svg');
+  }
+
+  .__uploader_btn_img_quit
+  {
+      @include button-image('quit.svg');
+  }
 
 
