@@ -50,10 +50,19 @@ const g_plugins = [
     , globals()
     , json()
     , babel({
-        include : 'node_modules/superagent/**'
-        , exclude: 'node_modules/**'
+        include : ['src/**', 'node_modules/superagent/**']
+        
+        //exclude: 'node_modules/**'
         , babelrc: false
-        , presets: [['@babel/env', { modules: false }]]
+        , presets: [['@babel/env', { 
+            modules: false 
+            , 'targets': {
+                'chrome': '58'
+                ,'ie': '11'
+            }
+            , forceAllTransforms: true
+            , useBuiltIns: 'usage'
+        }]]
         , plugins: ['@babel/plugin-transform-object-assign']
         , env: {
             test: {
@@ -67,7 +76,7 @@ const g_plugins = [
 let ui_plugins = [];
 ui_plugins.push(sass_plugin);
 ui_plugins = ui_plugins.concat(g_plugins);
-//console.log('ui_plugins', ui_plugins.length);
+console.log('ui_plugins', ui_plugins.length);
 
 
 /*
