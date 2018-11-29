@@ -31,6 +31,26 @@
             
         }
         , {
+            "name": "Debug Mocha e2e",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "stopOnEntry": false,
+            "args": ["--no-timeouts", "./test/e2e//**/*.js"],
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": null,
+            "console": "integratedTerminal"
+            , "runtimeArgs": [
+                "--preserve-symlinks"
+            ]        
+            
+            , "env": {
+                "NODE_ENV": "development"
+                , "DEBUG" : ""
+            }
+            
+        }
+        , {
             "name": "Debug Rollup",
             "type": "node",
             "request": "launch",

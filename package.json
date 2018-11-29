@@ -9,16 +9,23 @@
   "scripts": {
     "build": "rollup -c",
     "test": "node ./node_modules/mocha/bin/mocha --reporter spec --timeout 800000 ./src/test/index.js",
+    "unit": "node ./node_modules/mocha/bin/mocha ./test/unit//**/*.js",
+    "e2e": "node ./node_modules/mocha/bin/mocha ./test/e2e//**/*.js",
     "start": "node ./node_modules/@mediagoom/devman start server",
     "dev": "node ./node_modules/@mediagoom/devman",
     "server": "node ./src/test/server.js",
     "stop": "node ./node_modules/@mediagoom/devman stop",
-    "unit": "node ./node_modules/mocha/bin/mocha ./test/unit//**/*.js",
+
     "nyc": "nyc -x 'src/core/**/*.js' npm run unit",
     "cov-server": "nyc npm run server",
     "cov-client": "nyc --clean false npm test",
     "cov-html": "nyc report --reporter=html",
-    "cov-text": "nyc report --reporter=text"
+    "cov-text": "nyc report --reporter=text",
+    "clean": "shx rm -fr ./lib",
+    "cleanup": "shx rm -fr ./uploader",
+    "clean-cov": "shx rm -fr ./.nyc_output",
+    "clean-all": "run-p clean cleanup clean-cov",
+    "cov-uploader": "shx mv ./uploader/coverage.json ./.nyc_output"
   },
   "repository": {
     "type": "git",
@@ -49,6 +56,7 @@
     "eslint": "^5.9.0",
     "express": "^4.14.1",
     "mocha": "^5.2.0",
+    "npm-run-all": "^4.1.5",
     "nyc": "^13.1.0",
     "postcss": "^7.0.6",
     "rollup": "^0.65.0",
@@ -60,6 +68,9 @@
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-sass": "^0.9.2",
     "sass-inline-svg": "^1.2.0",
+    "saucelabs": "^1.5.0",
+    "selenium-webdriver": "^4.0.0-alpha.1",
+    "shx": "^0.3.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   },
