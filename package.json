@@ -10,7 +10,7 @@
     "build": "rollup -c",
     "test": "node ./node_modules/mocha/bin/mocha --reporter spec --timeout 800000 ./src/test/index.js",
     "unit": "node ./node_modules/mocha/bin/mocha ./test/unit//**/*.js",
-    "e2e": "node ./node_modules/mocha/bin/mocha ./test/e2e//**/*.js",
+    "e2e": "node ./node_modules/mocha/bin/mocha --timeout 30000 ./test/e2e//**/*.js",
     "start": "node ./node_modules/@mediagoom/devman start server",
     "dev": "node ./node_modules/@mediagoom/devman",
     "server": "node ./src/test/server.js",

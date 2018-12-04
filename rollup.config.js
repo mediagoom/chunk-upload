@@ -79,7 +79,7 @@ ui_plugins = ui_plugins.concat(g_plugins);
 console.log('ui_plugins', ui_plugins.length);
 
 
-/*
+
 const g_plugins_server = [
     commonjs()
     , json()
@@ -90,7 +90,7 @@ const g_plugins_server = [
         , plugins: ['@babel/plugin-transform-object-assign']
     })
 ];
-*/
+
 
 export default [
     {
@@ -125,7 +125,7 @@ export default [
         
         , plugins: ui_plugins
     }
-    /*, {
+    , {
         external: []
         , input: 'src/client.js'
 
@@ -140,30 +140,19 @@ export default [
     
         , plugins: g_plugins_server
     }
-    , {
+    ,{
         external: []
-        , input: 'src/server.js'
+        , input: 'src/UI/uploader.js'
         , output: 
+      
         {
-            file: 'bin/index.js'
+            file: 'lib/ui.js'
             , sourcemap: true
             , format: 'cjs'
+            , exports: 'named'
             , globals: []
         }
         , plugins: g_plugins_server
     }
-    , {
-        external: []
-        , input: 'src/test/server.js'
-        , output: 
-        {
-            file: 'bin/server.js'
-            , sourcemap: true
-            , format: 'cjs'
-            , globals: []
-        }
-        , plugins: g_plugins_server
-    }
-    */
     ,]
 ;

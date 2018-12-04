@@ -82,9 +82,12 @@ function get_title(/*caps, id)
 
 
 
-async function main(target_browser) {
+async function main(target_browser, headless) {
 
-    dbg('starting up');
+    dbg('starting up', target_browser, headless);
+
+    if(undefined === headless)
+        headless = false;
   
     let driver = null;
     let sauce = null;
@@ -97,6 +100,13 @@ async function main(target_browser) {
         .setPreference('devtools.chrome.enabled', true)
         .setPreference('devtools.debugger.remote-enabled', true)
         .setPreference('devtools.debugger.prompt-connection', false);
+
+    if(headless)
+    {
+        dbg('setting headless');
+        //options.headless();
+        options.addArguments('-headless');
+    }
 
     let use_firefox_options = false;
 
@@ -303,11 +313,11 @@ class selenium extends EventEmitter
         
     }
 
-    async start(target_browser)
+    async start(target_browser, headless)
     {
-        this.driver = await main(target_browser);
+        this.driver = await main(target_browser, headless);
 
-        //this.driver.setFileDetector(new file_detector());
+        this.driver.setFileDetector(new file_detector());
     }
 
     async close()
@@ -344,6 +354,28 @@ class selenium extends EventEmitter
         assert(undefined !== this.driver);
         this.element = await this.driver.findElement(By.id(id));
     }
+    async by_xpath(xpath)
+    {
+        assert(undefined !== this.driver);
+        this.element = await this.driver.findElement(By.xpath(xpath)); 
+    }
+    /**
+     * Select the current element with xpath from the current element
+     * @param {string} xpath 
+     */
+    async sub_by_xpath(xpath)
+    {
+        assert(undefined !== this.element);
+        this.element = await this.element.findElement(By.xpath(xpath)); 
+    }
+    /**
+     * Send a click to the current element
+     */
+    async click()
+    {
+        assert(undefined !== this.element);
+        await this.element.click(); 
+    }
 
     /**
      * send keys.
@@ -361,6 +393,15 @@ class selenium extends EventEmitter
     {
         assert(undefined !== this.driver);
         await this.driver.sleep(ms);
+    }
+
+    async wait_xpath(xpath, ms)
+    {
+        if(undefined === ms)
+            ms = 1000;
+
+        assert(undefined !== this.driver);
+        await this.driver.wait(until.elementLocated(By.xpath(xpath)), ms);
     }
 }
 
