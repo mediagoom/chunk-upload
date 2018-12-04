@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/mediagoom/chunk-upload.svg?branch=master)](https://travis-ci.org/mediagoom/chunk-upload)
 
+[![codecov](https://codecov.io/gh/mediagoom/chunk-upload/branch/master/graph/badge.svg)](https://codecov.io/gh/mediagoom/chunk-upload)
+
 # chunk-upload
 
 Browser to node.js chunked uploader
