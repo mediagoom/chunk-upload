@@ -1,16 +1,19 @@
 # chunk-upload
+
 Browser to node.js chunked uploader
 
-This module has a client side and a server side.
+This module has three components:
+- A server side express middleware to receive chunks
+- A client module which can be used in both nodejs or the browser
+- A ui component to be used in the browser
 
-The client side can be used in a browser.
 
 In order to see a working sample:
 
 ```javascript
 npm install
 npm run build
-npm start
+npm run server
 ```
 
 Open your browser in http://localhost:3000/index.html
