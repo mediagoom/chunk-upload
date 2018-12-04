@@ -37,8 +37,9 @@ script:
 - npm run cov-text
 - ./node_modules/.bin/nyc report --reporter=text-lcov | coveralls
 - ./node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov && codecov
-after_script:
 - NODE_ENV=production npm run build
+after_script:
+
 deploy:
   provider: npm
   email: info@mediagoom.com
