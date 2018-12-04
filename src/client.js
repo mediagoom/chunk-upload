@@ -312,10 +312,10 @@ class UploadManager extends EventEmitter {
             let file = files[i];
                     
             let id = file.name;
-            id = id.replace('.', '_');
-            id = id.replace(' ', '_');
-            id = id.replace('&', '_');
-            id = id.replace(' ', '_');
+            id = id.replace(/./g, '_');
+            id = id.replace(/ /g, '_');
+            id = id.replace(/&/g, '_');
+            //id = id.replace(' ', '_');
                         
             this.add(file, id);
             
