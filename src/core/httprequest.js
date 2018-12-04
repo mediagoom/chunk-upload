@@ -88,7 +88,7 @@ function req(opts)
 {
     return new Promise( (resolve, reject) => {
 
-        if(undefined === Blob)
+        if (typeof Blob === 'undefined')
         {
             _req(opts, resolve, reject);
         }
