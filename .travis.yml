@@ -33,7 +33,7 @@ script:
 - npm run e2e
 - npm stop
 - cat ./out.log
-- npm run cov-uploade
+- npm run cov-uploader
 - npm run cov-text
 - ./node_modules/.bin/nyc report --reporter=text-lcov | coveralls
 - ./node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov && codecov
