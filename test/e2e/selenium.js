@@ -180,7 +180,7 @@ async function main(target_browser, headless) {
             }
         }
 
-        builder.setEdgeService(new edge.ServiceBuilder());
+        //builder.setEdgeService(new edge.ServiceBuilder());
 
         if(use_firefox_options)
         {
