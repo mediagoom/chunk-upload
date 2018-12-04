@@ -12,6 +12,11 @@ addons:
 branches:
   except:
   - dev-wia
+before_install:
+  - wget https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz
+  - mkdir geckodriver
+  - tar -xzf geckodriver-v0.23.0-linux64.tar.gz -C geckodriver
+  - export PATH=$PATH:$PWD/geckodriver
 install:
 - npm install
 - npm install --only=dev
@@ -33,7 +38,7 @@ script:
 - ./node_modules/.bin/nyc report --reporter=text-lcov | coveralls
 - ./node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov && codecov
 after_script:
-
+- NODE_ENV=production npm run build
 deploy:
   provider: npm
   email: info@mediagoom.com
