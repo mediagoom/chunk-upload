@@ -3,6 +3,12 @@ node_js:
 - 10
 - 9
 - 8
+env:
+  MOZ_HEADLESS=1
+  TEST_BROWSER=firefox
+  NODE_ENV=test
+addons:
+  firefox: latest
 branches:
   except:
   - dev-wia
@@ -19,8 +25,10 @@ script:
 - cat ./out.log
 - npm test
 - npm run cov-client
+- npm run e2e
 - npm stop
 - cat ./out.log
+- npm run cov-uploade
 - npm run cov-text
 - ./node_modules/.bin/nyc report --reporter=text-lcov | coveralls
 - ./node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov && codecov
