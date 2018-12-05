@@ -101,10 +101,6 @@ function file_ui(id, options)
     
 }
 
-function toggle_button_visible(btn, hide)
-{
-
-}
 
 function update_start_ui(play, my_pause, options)
 {
@@ -224,16 +220,10 @@ function new_file(id, options)
 }
 
 
-function onerror(err) 
+function onerror(err, id, options) 
 { 
-    console.error(err.message, err.stack);
+    console.error(err.message, err.stack, id, JSON.stringify(options, null, 4));
 }
-
-/*
-function on_completed(id, options) { 
-
-}
-*/
 
 function click_file(file_input_id)
 {
