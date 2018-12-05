@@ -240,7 +240,7 @@ class UploadManager extends EventEmitter {
 
     add(file, id, options)
     {
-        if(null != this.uploader[id])
+        if(undefined !== this.uploader[id])
         {
             throw 'uploader already exist';
         }
@@ -312,10 +312,10 @@ class UploadManager extends EventEmitter {
             let file = files[i];
                     
             let id = file.name;
-            id = id.replace(/./g, '_');
+            id = id.replace(/\./g, '_');
             id = id.replace(/ /g, '_');
             id = id.replace(/&/g, '_');
-            //id = id.replace(' ', '_');
+            //id = id.replace(/./g, '_');
                         
             this.add(file, id);
             
