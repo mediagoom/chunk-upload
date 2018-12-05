@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A Browser to node.js chunked uploader",
   "main": "lib/index.js",
   "scripts": {
