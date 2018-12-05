@@ -41,6 +41,7 @@ script:
 after_script:
 
 deploy:
+  skip_cleanup: true
   provider: npm
   email: info@mediagoom.com
   api_key:

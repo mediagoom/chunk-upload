@@ -23,3 +23,9 @@ npm run server
 ```
 
 Open your browser in http://localhost:3000/index.html
+
+In order to use chunk-upload in your project run:
+
+```bash
+npm i -S @mediagoom/chunk-upload
+```

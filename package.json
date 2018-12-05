@@ -5,7 +5,7 @@
   },
   "version": "0.0.6",
   "description": "A Browser to node.js chunked uploader",
-  "main": "bin/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "rollup -c",
     "test": "node ./node_modules/mocha/bin/mocha --reporter spec --timeout 800000 ./src/test/index.js",
