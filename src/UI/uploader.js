@@ -171,6 +171,7 @@ function new_file(id, options)
     });
 
     $quit.addEventListener('click', function () {
+
         notify_txt.innerText = 'Upload Quitted.';    
         
         myself.pause();
@@ -178,8 +179,7 @@ function new_file(id, options)
         notify.classList.toggle(options.class.hidden);
         notify.previousElementSibling.classList.toggle(options.class.hidden);
         notify.previousElementSibling.previousElementSibling.classList.toggle(options.class.hidden); 
-        
-        
+                
         notify.children[0].classList.add(options.class.notify.quitted); 
     });
 
