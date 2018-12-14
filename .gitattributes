@@ -2,5 +2,5 @@
 # git config core.eol lf
 # git config core.autocrlf input
 
-* text eol=lf
+* text=auto eol=lf
 
