@@ -1,4 +1,13 @@
 {
+    "files.eol": "\n"
+, "files.exclude": {
+      "node_modules/": true
+    , "**/.nyc_output:": true
+    , "coverage/": true
+    , "*.lcov" : true
+}
+,
+"vim.useCtrlKeys": false,
     "cSpell.words": [
         "iife",
         "sourcemap",

@@ -2,7 +2,11 @@
 *.swp
 node_modules/
 .gitignore
+.gitattibutes
+.travis
 gulpfile.js
 sample/
 out.log
 *.tmp
+.vscode/
+

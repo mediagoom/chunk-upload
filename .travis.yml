@@ -33,17 +33,21 @@ script:
 - npm run e2e
 - npm stop
 - cat ./out.log
+- ls ./uploader/mediagoom.jpg
 - npm run cov-uploader
 - npm run cov-text
 - ./node_modules/.bin/nyc report --reporter=text-lcov | coveralls
 - ./node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov && codecov
-after_script:
 - NODE_ENV=production npm run build
+after_script:
+
 deploy:
+  skip_cleanup: true
   provider: npm
   email: info@mediagoom.com
   api_key:
-    secure: pYClwA5AloozvpAnxqp7D/VC9HfqwxTovQPFjKxIvAyc9kJZd3ggddN9Ue8wceMLky3C9Qf5a6k94gbH9aERIuPb019FRatTIZnp47DlMkiW3vg7SpGbFub4jDLMHhtDMNVkuqrfrDHFh9SiE+e5V/sTtmf9CaXabb4lAJ9ZxGoUZMQLN+RtQw/xJFwVQOgHjM5pysPDSkwlmXHwD2L4lwuvc8YR6pd/8uf2SuK/NfclRyFiKbVDnexBkx/zE4Qtk3wHDinjQPAjDRvmKwgxvKK+V9nsYaVG8cI8x/hqYt5822S0JkIzS4MWTGWHMFL5juu4XLMGZjhpuhYIHZC4PzO3yqwgiIkbtHucmSb5Jt4I13j9harOByM7ljXpTfyBjSQyFaiZnd/ypZZ0HWOb2054qY5BU/qstfLNOZP6qpM8HF+oYZBdodcpsicSLuqIlrNRAU++/qvGEJc+Kfk4JLKc7znKc1TpMOcwgQfQ8fFZ0YL3KoJhpytb362rWA5sIcQtEBiVkMVouyT6bPn25ymeSs5oajoMT/0Ovoscwwn9KNPK2Fq5zrHb4EU/V2RusRCuHFH0nDQnU5kl6u/civaQWYmhtLHT3yTwvYcfDodY04UFQrx9I+YrltOU+Etfglky/57SiXmi1Eua/TmHl0MD52aNBiAYM0imL3FI7Ek=
+    secure: "UUE7KUkwSJzNNcQ7PvadQfVrRnTa7hSf7y/dEkYbwVU7cHNP4HxsqVUqasTJQV0G2GUnfpyFPXZSa8DHi7ZNW9tH9Of2RD/i7AB686oz+LktzNGjXCMOvEFPdW1iF1wr3LdgDmyOaX4sMecgSLJN4XBvcJISpUNM+O8afzBIXEPrhfu78DlNRJ4RZrmjlNk3YgP3qrYBm0jsmltd8OzRs53RzaIlvt6G77cHCGsusobEYq/WY+l1uz//9UhSgMBfO80awQlic5+EI2KPgRPuxlc+ds/UsMuD2akz6XCZsL5qlOn0BXorzJcvy3tcWR3SvBJJs45gmxv1SdopECOcuch3Z9X6wGusWytLaanLHLX711xPwrO2W4ffMuYKfWiRWA2WdKHYPd5HAPy0qsIonLuA5c9UrPEbBVdXy/RI/lO0ADjtYcVT4aAcZjWC+q5E4tqYX76SXcgBK8CLXPAUXU9eY1Gb7xtusLs7DAqvUJA9YAtXliUe/INGHh6PgwwhDmxhEUvFCR9wSaVXYiP9bz0fHVG+sJD/5OQRN0thInF5LUsxmKr8YxHTSo+Ah+9kCn8eDMZ6cW/R9QlAyPDs9Xn34LhNmBhgLDriBtZJlDGAjwApmT3Bkd7kRRioVEFVcDKSfNMH8cp/Vu9VvIkm43vXWqE7GxCd4uWZsdHf95k="
   on:
     tags: true
     repo: mediagoom/chunk-upload
+    node: 8

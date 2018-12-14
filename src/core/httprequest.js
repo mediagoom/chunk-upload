@@ -1,4 +1,4 @@
-//import request from 'superagent';
+/* global Blob, FileReader */
 const request = require('superagent');
 
 function blobToBuffer (blob, cb) {
@@ -88,11 +88,7 @@ function req(opts)
 {
     return new Promise( (resolve, reject) => {
 
-
-        let def = true;
-        try{undefined === Blob;}catch(err){def = false;}
-
-        if(!def || (!(opts.body instanceof Blob)) )
+        if (typeof Blob === 'undefined')
         {
             _req(opts, resolve, reject);
         }

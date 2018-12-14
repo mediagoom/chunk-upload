@@ -54,52 +54,22 @@ function uplaoder(options){
     if(null != options)
         opt = Object.assign(opt, options);
 
+    //path, filepath, buffer, fend <- function end
     function append(p, f, b, complete/*, start*/){
-        //console.log("------- chunk buffer -> ", Buffer.isBuffer(b), b.length);
-
+        
         fs.mkdir(p, (e) => {
-            if(!e || (e && e.code === 'EEXIST')){
+
+            if( (null == e) || (e.code === 'EEXIST') )
+            {
+                
                 fs.appendFile(f, b, {encoding : null}, (err) => {complete(err);});           //do something with contents
-                /* 
-                              //console.log("append");
-
-                              fs.open(f, 'a', (err, fd) => {
-                                
-                                      if(null != err)
-                                      {
-                                              //console.log(err);
-                                              compleate(err);
-                                      }
-                                      else
-                                      {
-                                              //console.log("write", start);
-                                              fs.write(fd, b, start, (err, written, buffer) => {
-                                                      
-                                                        //console.log("writeback", start);
-
-                                                        if(null != err)
-                                                        {
-                                                                //console.log(err);
-                                                                compleate(err);
-                                                        }
-                                                        else
-                                                        {
-                                                                //console.log("WRITTEN: ", written);
-                                                                fs.close(fd, (err) => {
-                                                                        //console.log("closed", err);
-                                                                        complete(err);
-                                                                });
-                                                        }
-                                              });
-                                      }
-                              
-                              });
-                              */
+                
 
             } else {
                 //debug
                 complete(e);
             }
+
         });
     }
 
@@ -211,7 +181,7 @@ function uplaoder(options){
             if (err) return done(err);
 
             //if(false){
-            if (size !== null && received !== size) {
+            if (size !== undefined && received !== size) {
 
                 //console.log("---->Invalid Size", size, received, length);
 
@@ -303,7 +273,7 @@ function uplaoder(options){
                                     done(err);
                                 else
                                 {
-                                    append(path, filepath, buffer, fend, start);
+                                    append(path, filepath, buffer, fend /*, start*/);
                                 }
                             });
                         } else if(err.code == 'ENOENT') {
@@ -319,7 +289,7 @@ function uplaoder(options){
                 else
                 {
                     //console.log("process file");
-                    append(path, filepath, buffer, fend, start);
+                    append(path, filepath, buffer, fend /*, start*/);
 
                                
                 }
