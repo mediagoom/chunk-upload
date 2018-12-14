@@ -29,3 +29,83 @@ In order to use chunk-upload in your project run:
 ```bash
 npm i -S @mediagoom/chunk-upload
 ```
+## Server
+
+After installing in your express server add:
+```javascript
+const uploader  = require('@mediagoom/chunk-upload');
+
+const app = express();
+
+app.use('/upload', uploader({base_path: <destination> + '/'}));
+
+//this is called at the end of the upload
+    
+    app.put('/upload/:id?', (req, res) => {
+    
+        //the file path
+        console.write(req.uploader);
+        
+        res.send('OK');
+
+    
+    });
+
+```
+
+## Client
+
+To use the client module use:
+
+```javascript
+import {UploadManager} from '@mediagoom/chunk-upload/lib';
+```
+
+To use the client ui module use:
+
+```javascript
+import {build} from '@mediagoom/chunk-upload/lib/ui';
+
+
+```
+
+To use the client css:
+```bash
+
+npm i -D sass
+
+```
+
+If you use webpack in your webpack.config.js
+
+```javascript
+
+const sass = require('node-sass');
+const readFileSync = require('fs').readFileSync;
+
+
+function svg_inline(value)
+{
+    const val = value.getValue();
+    const path = path.resolve('./assets', val);
+    
+    const content = readFileSync(path);
+
+    return new sass.types.String('url("data:image/svg+xml;base64,' + content.toString('base64') + '")');
+}
+
+..........
+
+            test: /\.scss$/
+                ,use: [
+                  
+                    ,'css-loader'
+                    , { loader: 'sass-loader'
+                        , options: {
+                            functions: {
+                                'svg($value1)' : svg_inline
+                            }
+                        }
+                    }
+
+```
