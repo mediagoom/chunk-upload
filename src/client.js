@@ -118,6 +118,7 @@ class Uploader extends EventEmitter {
         this._range_end   = 0;
         this._range_start = 0;
         this._is_paused   = true;
+        this._err         = null;
         
 
         let opt = {
@@ -173,6 +174,7 @@ class Uploader extends EventEmitter {
         //console.log("uploader error: " + err.message);
         this._is_paused = true;
         this.status = 'error';
+        this._err = err;
         this.emit('error', err);
     }
 
@@ -194,6 +196,12 @@ class Uploader extends EventEmitter {
         this._is_paused = true;
 
         this.status = 'paused';
+    }
+
+    quit()
+    {
+        this.pause();
+        this.status = 'quitted';
     }
 
     paused() { return this._is_paused;}

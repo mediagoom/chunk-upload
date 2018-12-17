@@ -4,6 +4,7 @@ import * as uploader from '../client.js';
 const default_options = {
     url : window.location.protocol + '//' + window.location.host + '/upload'
     , owner : 'uploader'
+    , id : { prefix : '__upm___'}
     , upm_global : '__upm__'
     , options_function : () => alert('no options available')
     , file_input_id : '__file_input'
@@ -36,10 +37,15 @@ const default_options = {
     }
 };
 
-function ui_html(options)
+function container_id(options, host_id)
+{
+    return options.id.prefix + host_id;
+}
+
+function ui_html(options, host_id)
 {
     const html = `
-    <div class="${options.class_host}">
+    <div class="${options.class_host}" id="${container_id(options, host_id)}">
         
         <ul id="${options.styled_file_id}" class="${options.class_uploader_folder}"  >
             <li class="${options.class_uploader_folder_img}">&nbsp;</li>
@@ -63,6 +69,24 @@ function ui_html(options)
     `;
 
     return html;
+}
+
+function click_file(file_input_id)
+{
+    document.getElementById(file_input_id).click();
+}
+
+function attach_chunk_ui(div, options, host_id)
+{
+    let chunk_container = document.getElementById(container_id(options, host_id));
+
+    if(null === chunk_container)
+    {
+        div.innerHTML = ui_html(options, div.id);
+
+        const styled_file = document.getElementById(options.styled_file_id);
+        styled_file.addEventListener('click', () => click_file(options.file_input_id) );
+    }
 }
 
 function file_ui(id, options)
@@ -117,27 +141,16 @@ function update_start_ui(play, my_pause, options)
         my_pause.nextElementSibling.innerText = 'pause';
     }
 
-    
 }
 
-
-function new_file(id, options)
-{    
-                 
-    const file_list = document.getElementById(options.file_list_id);
-    file_list.appendChild(file_ui(id, options));
- 
-
-    const div = document.getElementById(id);
-
+function get_children(div)
+{
     const info = div.children[0];
-    //info.removeClass('progressview');
-
+ 
     const txt = info.children[0];
 
     const buttons = div.children[1];
-    //buttons.removeClass('hidden');
-   
+    
     const progress = div.children[2];
 
     const notify = div.children[3];
@@ -146,98 +159,188 @@ function new_file(id, options)
     const $pause = buttons.children[0];
     const $quit  = buttons.children[1];
     const $opt   = buttons.children[2];
-    
-
-    const myself  = window[options.upm_global].uploader[id];
+        
     const my_pause = $pause.children[0];
 
-    $pause.addEventListener('click', function (){ 
-        if (myself.paused()) 
-        {
-            myself.resume();
-            notify.classList.add(options.class.hidden);
-             
-        } else { 
+    return {
+        info, txt, buttons, progress, notify, notify_txt, $pause, $quit, $opt, my_pause
+    };
+}
 
-            myself.pause(); 
-        } 
+function error_ui(err, options, id)
+{
+    const div = document.getElementById(id);
+    if(null === div) {return;}
+    const children = get_children(div);
+    
+    children.notify_txt.innerText = 'Error: ' + err.message;
+    update_start_ui(false, children.my_pause, options);
 
-        update_start_ui(!myself.paused(), my_pause, options);
- 
-    });
+    children.notify.classList.toggle(options.class.hidden); 
+    children.notify.children[0].classList.add(options.class.notify.error);  
+}
 
-    $opt.addEventListener('click', function () {
-        options.options_function(myself);
-    });
-
-    $quit.addEventListener('click', function () {
-
-        notify_txt.innerText = 'Upload Quitted.';    
+function complete_ui(options, id)
+{
+    const div = document.getElementById(id);
+    if(null === div) {return;}
+    const children = get_children(div);
         
-        myself.pause();
+    children.notify_txt.innerText = 'Upload Completed.';
+        
+    children.notify.classList.toggle(options.class.hidden);
+    children.notify.previousElementSibling.classList.toggle(options.class.hidden);
+    children.notify.previousElementSibling.previousElementSibling.classList.toggle(options.class.hidden); 
+        
+    children.notify.children[0].classList.remove(options.class.notify.error); 
+    children.notify.children[0].classList.add(options.class.notify.success); 
+}
 
-        notify.classList.toggle(options.class.hidden);
-        notify.previousElementSibling.classList.toggle(options.class.hidden);
-        notify.previousElementSibling.previousElementSibling.classList.toggle(options.class.hidden); 
+function quit_ui(options, id)
+{
+    const div = document.getElementById(id);
+    const children = get_children(div);
+
+    children.notify_txt.innerText = 'Upload Quitted.'; 
+
+    children.notify.classList.toggle(options.class.hidden);
+    children.notify.previousElementSibling.classList.toggle(options.class.hidden);
+    children.notify.previousElementSibling.previousElementSibling.classList.toggle(options.class.hidden); 
                 
-        notify.children[0].classList.add(options.class.notify.quitted); 
-    });
+    children.notify.children[0].classList.add(options.class.notify.quitted); 
+}
 
+function play_pause(options, id)
+{
+    const myself  = window[options.upm_global].uploader[id];
+    const div = document.getElementById(id);
+    const children = get_children(div);
+        
+    if (myself.paused()) 
+    {
+        //myself.resume();
+        children.notify.classList.add(options.class.hidden);
+             
+    } else { 
+
+        //myself.pause(); 
+    } 
+
+    update_start_ui(!myself.paused(), children.my_pause, options);
+}
+
+function add_file_ui(id, options)
+{
+    const myself  = window[options.upm_global].uploader[id];
+
+    const file_list = document.getElementById(options.file_list_id);
+
+    let div = document.getElementById(id);
+
+    if(null === div)
+    {
+        file_list.appendChild(file_ui(id, options));
+        div = document.getElementById(id);
+
+        const children = get_children(div);
+
+        children.$pause.addEventListener('click', function (){ 
+            
+            if (myself.paused()) 
+            {
+                myself.resume();
+            } else { 
+                myself.pause(); 
+            } 
+            
+            play_pause(options, id); 
+        });
+
+        children.$opt.addEventListener('click', function () {
+            options.options_function(myself);
+        });
+
+        children.$quit.addEventListener('click', function () {
+                    
+            myself.quit();
+            quit_ui(options, id);
+            
+        });
        
-    txt.innerHTML = myself.name();
+        children.txt.innerHTML = myself.name();
 
+        if(myself.status === 'started' || myself.status === 'paused')
+            play_pause(options, id);
+
+        if(myself.status === 'quitted')
+            quit_ui(options, id);
+       
+        if(myself.status === 'completed')
+            complete_ui(options, id);
+
+        if(myself.status === 'error')
+            error_ui(myself._err, options, id);
+
+    }
+}
+
+
+function new_file(id, options)
+{    
+    
+    const myself  = window[options.upm_global].uploader[id];
+
+    add_file_ui(id, options);
+    
     myself.on('progress', function (num) {
+
+        const div = document.getElementById(id);
+        if(null === div) {return;}
+        const children = get_children(div);
 
         var d = new Number(num);
         var x = new String(d.toFixed(0)) + '%';
         var s = new String(d.toFixed(2)) + '%';
 
-        progress.children[0].style.width = x;
-        progress.children[1].innerHTML = s;
+        children.progress.children[0].style.width = x;
+        children.progress.children[1].innerHTML = s;
+    
     });
-
+    
     myself.on('completed', () => {
-        notify_txt.innerText = 'Upload Completed.';
-        
-        notify.classList.toggle(options.class.hidden);
-        notify.previousElementSibling.classList.toggle(options.class.hidden);
-        notify.previousElementSibling.previousElementSibling.classList.toggle(options.class.hidden); 
-        
-        notify.children[0].classList.remove(options.class.notify.error); 
-        notify.children[0].classList.add(options.class.notify.success); 
+        complete_ui(options, id);
     });
 
     myself.on('error', (err) => {
-        
-        notify_txt.innerText = 'Error: ' + err.message;
-        update_start_ui(false, my_pause, options);
 
-        notify.classList.toggle(options.class.hidden); 
-        notify.children[0].classList.add(options.class.notify.error);  
+        error_ui(err, options, id);
     });
 
     
 }
 
-
 function onerror(err, id, options) 
 { 
     console.error(err.message, err.stack, id, JSON.stringify(options, null, 4));
 }
-
-function click_file(file_input_id)
-{
-    document.getElementById(file_input_id).click();
-}
-
+/**
+ * The build function attach the chunk client ui to the dom
+ * @param {*} div_id the object or a id string of the container
+ * @param {*} options 
+ */
 export function build(div_id, options)
 {
     if(undefined === options)
         options = default_options;
     else
         options = Object.assign({}, options, default_options);
-    
-    const div = document.getElementById(div_id);
+
+    let div = null;
+
+    if(typeof div_id === 'string')
+        div = document.getElementById(div_id);
+    else
+        div = div_id;
 
     if(!window[options.upm_global])
     {
@@ -246,13 +349,7 @@ export function build(div_id, options)
 
         upm.setOptions(options);
         upm.on('new', (id) => new_file(id, options));
-
-        div.innerHTML = ui_html(options);
-
-        const styled_file = document.getElementById(options.styled_file_id);
-        styled_file.addEventListener('click', () => click_file(options.file_input_id) );
-
-        
+               
         upm.on('error', (err, id) => onerror(err, id, options));
         /*
         upm.on('completed', (id) => on_completed(id, options));
@@ -260,5 +357,15 @@ export function build(div_id, options)
 
     }
 
+    if(null != div)
+    {
+        attach_chunk_ui(div, options, div.id);
+
+        const keys = Object.keys(window[options.upm_global].uploader);
+
+        for(let idx = 0; idx < keys.length; idx++)
+            add_file_ui(keys[idx], options);
+    }
+    
     return window[options.upm_global];
 }
