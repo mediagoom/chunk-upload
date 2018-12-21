@@ -25,7 +25,7 @@
     "cleanup": "shx rm -fr ./uploader",
     "clean-cov": "shx rm -fr ./.nyc_output",
     "clean-all": "run-p clean cleanup clean-cov",
-    "cov-uploader": "shx mv ./uploader/coverage.json ./.nyc_output"
+    "cov-uploader": "shx mv ./uploader/uploader/coverage.json ./.nyc_output"
   },
   "repository": {
     "type": "git",
