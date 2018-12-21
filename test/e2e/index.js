@@ -3,7 +3,7 @@ const dbg = require('debug')('chunk-upload:e2e');
 const expect   = require('chai').expect;
 const path = require('path');
 
-const test_file  = process.env.TESTFILE || '../../src/test/mediagoom.jpg';
+const test_file  = process.env.TESTFILE || '../../test/ingestion/mediagoom.jpg';
 const input_path = path.resolve(path.join(__dirname, test_file));
 
 describe('E2E', () => {

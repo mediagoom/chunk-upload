@@ -7,7 +7,7 @@ let server = undefined;
 
 const port = process.env.PORT || 3000;
 
-const app = App({base_path : './uploader'});
+const app = App({base_path : './uploader/'});
 
 
 process.on('SIGINT', function() {

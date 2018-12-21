@@ -38,9 +38,12 @@ describe('HTTP REQUEST', () => {
             let forig = tval('TESTFILE', path.normalize(path.join(__dirname, './mediagoom.jpg')));
             dbg('file-upload', forig);
             
-            let fdest = 'test-file-output.tmp';
-                       
-            let t = new TestFile(forig);
+            const fdest = 'test-file-output.tmp';
+
+            const full_destination = path.normalize(path.join(__dirname, '../../uploader/' + fdest));
+            dbg('file-destination', full_destination, fdest);
+            
+            const t = new TestFile(forig);
                         
             let opt = {
                 url : tval('TESTURL', 'http://localhost:3000/upload')
@@ -52,7 +55,7 @@ describe('HTTP REQUEST', () => {
             u.on('completed', () => {
                                     
                 check(done, () => {
-                    expect(chaiFiles.file(forig)).to.equal(chaiFiles.file(fdest));                        
+                    expect(chaiFiles.file(forig)).to.equal(chaiFiles.file(full_destination));                        
                 });
             });
             u.on('error', (err) => {
