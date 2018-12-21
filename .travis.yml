@@ -29,6 +29,7 @@ script:
 - npm start
 - cat ./out.log
 - npm test
+- npm run cov-integration
 - npm run cov-client
 - npm run e2e
 - npm stop

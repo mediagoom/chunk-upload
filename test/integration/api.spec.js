@@ -38,4 +38,12 @@ describe('API-TEST', () => {
        
     });
 
+    it('check invalid size', async () => {
+       
+        let res = await simulator.invalid_size();
+        
+        expect(res.status).to.be.above(399, 'invalid size');
+       
+    });
+
 });

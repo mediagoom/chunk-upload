@@ -1,5 +1,6 @@
 /* global Blob, FileReader */
 const request = require('superagent');
+require('superagent-proxy')(request);
 
 function blobToBuffer (blob, cb) {
     if (typeof Blob === 'undefined' || !(blob instanceof Blob)) {
@@ -47,6 +48,11 @@ function _req(opts, resolve, reject)
         (keys).forEach(element => {
             r.set(element, opts.headers[element]);
         });
+    }
+
+    if(undefined !== opts.proxy)
+    {
+        r.proxy(opts.proxy);
     }
 
     if(undefined !== opts.body)
