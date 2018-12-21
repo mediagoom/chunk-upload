@@ -215,6 +215,8 @@ function play_pause(options, id)
     const myself  = window[options.upm_global].uploader[id];
     const div = document.getElementById(id);
     const children = get_children(div);
+
+    children.notify.classList.add(options.class.hidden);
         
     if (myself.paused()) 
     {

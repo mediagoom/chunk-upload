@@ -3,19 +3,19 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.0.10",
+  "version": "0.0.12",
   "description": "A Browser to node.js chunked uploader",
   "main": "src/server.js",
   "scripts": {
     "build": "rollup -c",
-    "test": "node ./node_modules/mocha/bin/mocha --reporter spec --timeout 800000 ./src/test/index.js",
+    "test": "node ./node_modules/mocha/bin/mocha --reporter spec --timeout 800000 ./test/integration/index.js",
     "unit": "node ./node_modules/mocha/bin/mocha ./test/unit//**/*.js",
+    "integration": "node ./node_modules/mocha/bin/mocha --timeout 30000 ./test/integration//**/*.spec.js",
     "e2e": "node ./node_modules/mocha/bin/mocha --timeout 30000 ./test/e2e//**/*.js",
     "start": "node ./node_modules/@mediagoom/devman start server",
     "dev": "node ./node_modules/@mediagoom/devman",
-    "server": "node ./src/test/server.js",
+    "server": "node ./test/integration/server.js",
     "stop": "node ./node_modules/@mediagoom/devman stop",
-
     "nyc": "nyc -x 'src/core/**/*.js' npm run unit",
     "cov-server": "nyc npm run server",
     "cov-client": "nyc --clean false npm test",
@@ -26,7 +26,6 @@
     "clean-cov": "shx rm -fr ./.nyc_output",
     "clean-all": "run-p clean cleanup clean-cov",
     "cov-uploader": "shx mv ./uploader/coverage.json ./.nyc_output"
-    
   },
   "repository": {
     "type": "git",
@@ -54,6 +53,7 @@
     "babel-plugin-istanbul": "^5.1.0",
     "chai": "^3.5.0",
     "chai-files": "^1.4.0",
+    "debug": "^4.1.0",
     "eslint": "^5.9.0",
     "express": "^4.14.1",
     "mocha": "^5.2.0",
@@ -72,11 +72,11 @@
     "saucelabs": "^1.5.0",
     "selenium-webdriver": "^4.0.0-alpha.1",
     "shx": "^0.3.2",
+    "supertest": "^3.3.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "debug": "^4.1.0",
     "superagent": "^4.0.0"
   }
 }

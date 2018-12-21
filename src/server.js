@@ -185,10 +185,10 @@ function uplaoder(options){
 
                 //console.log("---->Invalid Size", size, received, length);
 
-                done(createError(400, 'request size did not match content length', 'request.size.invalid', {
-                    expected: length
-                    ,length: length
-                    ,received: received
+                done(createError(400, 'request size did not match content length.x', 'request.size.invalid.', {
+                    expected: size
+                    , length: length
+                    , received: received
                 }));
             } else {
                 /*var string = decoder

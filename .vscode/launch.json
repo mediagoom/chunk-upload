@@ -70,5 +70,25 @@
             }
             
         }
+        , {
+            "name": "Debug Mocha integration",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "stopOnEntry": false,
+            "args": ["--no-timeouts", "./test/integration//**/*.spec.js"],
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": null
+            //,"console": "integratedTerminal"
+            , "runtimeArgs": [
+                "--preserve-symlinks"
+            ]        
+            , "timeout": 1200000 
+            , "env": {
+                "NODE_ENV": "development"
+                , "DEBUG" : ""
+            }
+            
+        }
     ]
 }
