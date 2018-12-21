@@ -58,6 +58,6 @@ cnt = get_file_content(v)
 
 cnt = re.sub(r'"version": "\d+\.\d+\.\d+"', "\"version\": \"" + lversion + "\"", cnt)
 
-print cnt
+print(cnt)
 
 write_file(v, cnt)

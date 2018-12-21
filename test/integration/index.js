@@ -1,7 +1,8 @@
 const chai = require('chai');
 const TestFile = require('./file.js');
-const Uploader = require('../client.js').default;
+const Uploader = require('../../src/client.js').default;
 const chaiFiles = require('chai-files');
+const path = require('path');
  
 chai.use(chaiFiles);
 var expect = chai.expect;
@@ -33,7 +34,7 @@ describe('HTTP REQUEST', () => {
 
         it('upload a file', (done) => {
                   
-            let forig = tval('TESTFILE', './src/test/mediagoom.jpg');
+            let forig = tval('TESTFILE', path.normalize(path.join(__dirname, './mediagoom.jpg')));
             let fdest = 'test-file-output.tmp';
                        
             let t = new TestFile(forig);
@@ -56,9 +57,6 @@ describe('HTTP REQUEST', () => {
 
         });
     });
-
-
-
-   
+ 
 
 });//http request
