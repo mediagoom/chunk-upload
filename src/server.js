@@ -119,8 +119,6 @@ function uplaoder(options){
 
             size  = end - start;
 
-            //console.log("=======>", cr, regexp, m, start, end, total)
-
             buffer = Buffer.alloc(size);
         }
 
@@ -160,11 +158,15 @@ function uplaoder(options){
         function onData (chunk) {
             if (complete) return;
 
+            if(null === buffer)
+            {
+                done(createError(400, 'request has invalid headers. Missing Content-Range.', 'request.size.invalid'
+                    , {                 
+                    }));
+                    
+                return;
+            }
 
-            ////console.log("------- chunk buffer -> ", Buffer.isBuffer(chunk));
-
-           
-            //buffer.push(chunk);
             chunk.copy(buffer, received);
             received += chunk.length;
 
@@ -216,11 +218,8 @@ function uplaoder(options){
                 req['uploader'] = filepath; 
 
 
-                //let cr = req.headers['content-range'];
-                //let cont = true;
                 if(null == cr)
-                {
-                    //console.log('NO HEADERS');
+                {                    
                     done(createError(400, 'request has invalid headers', 'request.size.invalid', {
                         expected: size
                         ,length: buffer.length

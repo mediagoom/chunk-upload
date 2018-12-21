@@ -1,6 +1,6 @@
 /* global Blob, FileReader */
 const request = require('superagent');
-require('superagent-proxy')(request);
+//require('superagent-proxy')(request);
 
 function blobToBuffer (blob, cb) {
     if (typeof Blob === 'undefined' || !(blob instanceof Blob)) {
@@ -50,10 +50,12 @@ function _req(opts, resolve, reject)
         });
     }
 
+    /*
     if(undefined !== opts.proxy)
     {
         r.proxy(opts.proxy);
     }
+    */
 
     if(undefined !== opts.body)
         r.send(opts.body);
@@ -61,11 +63,11 @@ function _req(opts, resolve, reject)
     r.end( (error, res) => {
 
         if(null != error){
-            //console.log("httprequest error", error.message);
+           
             reject(error);
         }
         else{
-            //console.log("httprequest response" , res.statusCode);
+            
 
             let statusCode = res.status;
                 
@@ -120,12 +122,14 @@ class httprequest {
     {
         this._opt = { };
 
+        /*
         if(null != process)
         {
             if(null != process.env)
                 if(null != process.env.http_proxy)
                     this._opt.proxy = process.env.http_proxy;
         }
+        */
             
         if(null != options)
         {
