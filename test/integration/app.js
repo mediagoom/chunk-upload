@@ -7,8 +7,8 @@ const dbg      = require('debug')('chunk-upload:integration-test-api');
 const default_options= {
     root : {
         static : 'sample'
-        , uploader : '/uploader/:id?'
-        , lib : '/lib'
+        , uploader : '/upload/:id?'
+        , lib : './lib'
     }
 };
 

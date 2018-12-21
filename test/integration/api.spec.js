@@ -10,7 +10,7 @@ describe('API-TEST', () => {
     let simulator = null;
 
     let config = { 
-        uploader : '/uploader'
+        uploader : '/upload'
         , base_path : './uploader/'
     };
         

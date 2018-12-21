@@ -1,7 +1,6 @@
-import chai from 'chai';
-import httprequest from '../../core/httprequest.js';
+const expect   = require('chai').expect;
+const httprequest = require('../../src/core/httprequest.js');
  
-var expect = chai.expect;
 
 /*
 function tval(name, def)

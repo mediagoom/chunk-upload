@@ -3,7 +3,8 @@ const TestFile = require('./file.js');
 const Uploader = require('../../src/client.js').default;
 const chaiFiles = require('chai-files');
 const path = require('path');
- 
+const dbg      = require('debug')('chunk-upload:integration-test');
+
 chai.use(chaiFiles);
 var expect = chai.expect;
 
@@ -35,6 +36,8 @@ describe('HTTP REQUEST', () => {
         it('upload a file', (done) => {
                   
             let forig = tval('TESTFILE', path.normalize(path.join(__dirname, './mediagoom.jpg')));
+            dbg('file-upload', forig);
+            
             let fdest = 'test-file-output.tmp';
                        
             let t = new TestFile(forig);
@@ -52,7 +55,10 @@ describe('HTTP REQUEST', () => {
                     expect(chaiFiles.file(forig)).to.equal(chaiFiles.file(fdest));                        
                 });
             });
-            u.on('error', (err) => {done(err);});
+            u.on('error', (err) => {
+                dbg('client error', err.message, err.stack, JSON.stringify(err, null, 4));
+                done(err);
+            });
             u.start();
 
         });

@@ -2,11 +2,11 @@
     "proc" : [
         {
             "name"  : "server"
-          , "watch" : ["src/server.js"]
+          , "watch" : ["src/server.js", "./test/integration/**/*.js"]
           , "exec"  : []
           , "cmd"   : {"proc": "node", "args": ["./node_modules/nyc/bin/nyc.js"
                 , "--clean", "false"
-                , "node", "./src/test/server.js"
+                , "node", "./test/integration/server.js"
                 ]}
           , "debug" : false 
           , "break" : false

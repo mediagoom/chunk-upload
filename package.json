@@ -8,7 +8,7 @@
   "main": "src/server.js",
   "scripts": {
     "build": "rollup -c",
-    "test": "node ./node_modules/mocha/bin/mocha --reporter spec --timeout 800000 ./test/integration/index.js",
+    "test": "node ./node_modules/mocha/bin/mocha --timeout 800000 ./test/integration/index.js",
     "unit": "node ./node_modules/mocha/bin/mocha ./test/unit//**/*.js",
     "integration": "node ./node_modules/mocha/bin/mocha --timeout 30000 ./test/integration//**/*.spec.js",
     "e2e": "node ./node_modules/mocha/bin/mocha --timeout 30000 ./test/e2e//**/*.js",
