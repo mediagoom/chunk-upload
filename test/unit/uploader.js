@@ -1,7 +1,7 @@
 const expect   = require('chai').expect;
 const dbg      = require('debug')('chunk-uploader:unit-test-uploader');
-
 const chunk    = require('../../src/client.js');
+
 const chunk_size = process.env['CHUNK-SIZE'] || 50;
 const fake_total_size = process.env['FAKE-SIZE'] || 220;
 

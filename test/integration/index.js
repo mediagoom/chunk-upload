@@ -1,9 +1,11 @@
-const chai = require('chai');
-const TestFile = require('./file.js');
-const Uploader = require('../../src/client.js').default;
-const chaiFiles = require('chai-files');
 const path = require('path');
+const chai = require('chai');
+const chaiFiles = require('chai-files');
+
 const dbg      = require('debug')('chunk-upload:integration-test');
+const Uploader = require('../../src/client.js').default;
+const TestFile = require('./file.js');
+
 
 chai.use(chaiFiles);
 var expect = chai.expect;

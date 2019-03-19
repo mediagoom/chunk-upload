@@ -9,7 +9,11 @@
 ,
 "vim.useCtrlKeys": false,
     "cSpell.words": [
+        "builtins",
+        "devman",
         "iife",
+        "mediagoom",
+        "saucelabs",
         "sourcemap",
         "uploader",
         "xpath"
