@@ -1,3 +1,5 @@
+import {readFileSync} from 'fs';
+import {resolve as path_resolve}  from 'path';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import built_ins from 'rollup-plugin-node-builtins';
@@ -9,8 +11,7 @@ import autoprefixer from 'autoprefixer';
 import postcss from 'postcss';
 //import inliner from 'sass-inline-svg';
 import sass from 'sass';
-import {readFileSync} from 'fs';
-import {resolve as path_resolve}  from 'path';
+
 
 function svg_inline(value)
 {
