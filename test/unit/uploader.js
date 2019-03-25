@@ -25,6 +25,12 @@ class FakeRequest {
     }
 }
 
+//lastModified: 1552660384979
+//lastModifiedDate: Date 2019-03-15T14:33:04.979Z
+//name: "CaptureFormat.exe"
+//size: 11776
+//type: "application/x-msdownload"
+
 class FakeFile{
 
     constructor(file_path, name)
@@ -56,6 +62,7 @@ class FakeFile{
     }
 
     get name(){return this.Name;}
+
 }
 
 describe('CLIENT', () => {

@@ -1,6 +1,3 @@
-//import { EventEmitter } from 'events';
-//import httprequest from './core/httprequest';
-
 const EventEmitter = require('events');
 const httprequest = require('./core/httprequest');
 
@@ -90,7 +87,6 @@ function upload(upl)
                             upload(self);
                         }                                
                                             
-                                                
                     }
 
                     self._onProgress(sn);
