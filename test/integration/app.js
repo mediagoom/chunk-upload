@@ -50,9 +50,13 @@ function get_app(options)
 
     if('production' !== process.env.NODE_ENV)
     {
-        app.use(function (err, req, res/*, next*/) {
+        app.use(function (err, req, res, next) {
             
             dbg('app chunk uploader error', err.message, res.status, JSON.stringify(err, null, 4));
+
+            if (res.headersSent) {
+                return next(err);
+            }
 
             const body = `
             ${JSON.stringify(err, null, 4)}

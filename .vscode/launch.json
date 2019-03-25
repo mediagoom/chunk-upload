@@ -10,47 +10,25 @@
             "name": "Launch Program",
             "program": "${workspaceFolder}\\bin\\index.js"
         }
-        , {
-            "name": "Debug Mocha unit",
+        
+        ,{
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-            "stopOnEntry": false,
-            "args": ["--no-timeouts", "./test/unit//**/*.js"],
-            "cwd": "${workspaceRoot}",
-            "preLaunchTask": null,
-            "console": "integratedTerminal"
-            , "runtimeArgs": [
-                "--preserve-symlinks"
-            ]        
-            
-            , "env": {
-                "NODE_ENV": "development"
-                , "DEBUG" : ""
-            }
-            
+            "name": "Mocha Current File",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "--timeout",
+                "999999",
+                "--colors",
+                "${file}"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         }
-        , {
-            "name": "Debug Mocha e2e",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-            "stopOnEntry": false,
-            "args": ["--no-timeouts", "./test/e2e//**/*.js"],
-            "cwd": "${workspaceRoot}",
-            "preLaunchTask": null,
-            "console": "integratedTerminal"
-            , "runtimeArgs": [
-                "--preserve-symlinks"
-            ]        
-            
-            , "env": {
-                "NODE_ENV": "development"
-                , "DEBUG" : ""
-            }
-            
-        }
-        , {
+    
+        
+        
+          , {
             "name": "Debug Rollup",
             "type": "node",
             "request": "launch",
@@ -70,47 +48,6 @@
             }
             
         }
-        , {
-            "name": "Debug Mocha integration",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-            "stopOnEntry": false,
-            "args": ["--no-timeouts", "./test/integration//**/*.spec.js"],
-            "cwd": "${workspaceRoot}",
-            "preLaunchTask": null
-            //,"console": "integratedTerminal"
-            , "runtimeArgs": [
-                "--preserve-symlinks"
-            ]        
-            , "timeout": 1200000 
-            , "env": {
-                "NODE_ENV": "development"
-                , "DEBUG" : ""
-            }
-            
-        }
-        , {
-            "name": "Debug Mocha test",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-            "stopOnEntry": false,
-            "args": ["--no-timeouts", "./test/integration/index.js"],
-            "cwd": "${workspaceRoot}",
-            "preLaunchTask": null
-            //,"console": "integratedTerminal"
-            , "runtimeArgs": [
-                "--preserve-symlinks"
-            ]        
-            , "timeout": 1200000 
-            , "env": {
-                "NODE_ENV": "development"
-                , "DEBUG" : ""
-            }
-            
-        }
-
-        , 
+        
     ]
 }

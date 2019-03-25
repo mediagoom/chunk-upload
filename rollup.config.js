@@ -9,8 +9,11 @@ import json from 'rollup-plugin-json';
 import rollup_sass from 'rollup-plugin-sass';
 import autoprefixer from 'autoprefixer';
 import postcss from 'postcss';
+import dbgFunc from 'debug';
 //import inliner from 'sass-inline-svg';
 import sass from 'sass';
+
+const dbg = dbgFunc('chunk-upload:rollup');
 
 
 function svg_inline(value)
@@ -46,7 +49,12 @@ const g_plugins = [
         preferBuiltins: true
         , browser: true
     })
-    , commonjs()
+    , commonjs(
+        {
+            exclude: [ 'node_modules/superagent-proxy/**' ]
+            , ignore: ['superagent-proxy']
+        }
+    )
     , built_ins()
     , globals()
     , json()
@@ -77,8 +85,8 @@ const g_plugins = [
 let ui_plugins = [];
 ui_plugins.push(sass_plugin);
 ui_plugins = ui_plugins.concat(g_plugins);
-console.log('ui_plugins', ui_plugins.length);
 
+dbg('ui_plugins', ui_plugins.length);
 
 
 const g_plugins_server = [

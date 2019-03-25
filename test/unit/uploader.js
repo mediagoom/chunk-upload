@@ -11,6 +11,7 @@ class FakeRequest {
     {
         this.size = 0;
         this.requests = 0;
+        
     }
 
     put(uri, body)
@@ -26,9 +27,18 @@ class FakeRequest {
 
 class FakeFile{
 
-    constructor(file_path)
+    constructor(file_path, name)
     {
         dbg('FAKE-FILE', file_path);
+
+        this.Name = 'FAKE';
+        this.Path = '../src/test/mediagoom.jpg';
+
+        if(undefined != name)
+            this.Name = name;
+
+        if(undefined != file_path)
+            this.Path = file_path;
     }
 
     slice(start, end)
@@ -45,15 +55,14 @@ class FakeFile{
         return fake_total_size;
     }
 
-    get name(){return 'FAKE';}
+    get name(){return this.Name;}
 }
 
 describe('CLIENT', () => {
 
-    const file_path = process.env['TEST_FILE'] || '../src/test/mediagoom.jpg';
-
+    
     it('should have defaults',  ( ) => {
-        const file = new FakeFile(file_path);
+        const file = new FakeFile();
         const uploader = new chunk.default(file); 
 
         expect(uploader._range_end).to.be.eq(file.size);
@@ -71,7 +80,7 @@ describe('CLIENT', () => {
                     , chunk_size
                 };        
 
-                const file = new FakeFile(file_path);
+                const file = new FakeFile();
                 const uploader = new chunk.default(file, opts);
         
                 uploader.on('progress', (sn) => {
