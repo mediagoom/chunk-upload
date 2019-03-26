@@ -25,11 +25,13 @@ $text-color:  #42b983;
 .__uploader_file{
     opacity: 0;
     width:100%;
-    height: auto;
+    height: 100%;
     position: absolute;
-    border: 3px solid;
+    //border: 3px solid;
     left:0px;
-    @extend %uploader;
+    top: 0px;
+    cursor: pointer;
+  
 }
 
 .__uploader_file_upload_area
@@ -188,7 +190,7 @@ $text-color:  #42b983;
     }
 
     span {
-        z-index: 100;
+     z-index: 100;
         position: absolute;
         left: 0;
         width: 100%;

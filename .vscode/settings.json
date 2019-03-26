@@ -2,16 +2,45 @@
     "files.eol": "\n"
 , "files.exclude": {
       "node_modules/": true
-    , "**/.nyc_output:": true
+    , "**/.nyc_output": true
     , "coverage/": true
     , "*.lcov" : true
 }
+
+, "css.validate": false
+, "less.validate": false
+, "scss.validate": true
+, "vim.useCtrlKeys": false
 ,
-"vim.useCtrlKeys": false,
     "cSpell.words": [
+        "builtins",
+        "devman",
         "iife",
+        "mediagoom",
+        "saucelabs",
         "sourcemap",
         "uploader",
         "xpath"
     ]
+    , "peacock.favoriteColors": [
+        
+            { "name": "Gatsby Purple", "value": "#639" },
+            { "name": "Auth0 Orange", "value": "#eb5424" },
+            { "name": "Azure Blue", "value": "#007fff" }
+            , {"name": "Azure Code", "value": "007acc"}
+          
+    ]
+    , "peacock.affectActivityBar"	: true
+    , "peacock.affectStatusBar" : true
+    , "peacock.affectTitleBar": false
+    , "workbench.colorCustomizations": {
+        "activityBar.background": "#3399ff",
+        "activityBar.foreground": "#15202b",
+        "activityBar.inactiveForeground": "#15202b99",
+        "activityBarBadge.background": "#bf0060",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "statusBar.background": "#007fff",
+        "statusBarItem.hoverBackground": "#3399ff",
+        "statusBar.foreground": "#e7e7e7"
+    }
 }

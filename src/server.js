@@ -156,6 +156,7 @@ function uplaoder(options){
         }
 
         function onData (chunk) {
+            
             if (complete) return;
 
             if(null === buffer)

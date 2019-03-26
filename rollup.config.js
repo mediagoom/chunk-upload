@@ -1,3 +1,5 @@
+import {readFileSync} from 'fs';
+import {resolve as path_resolve}  from 'path';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import built_ins from 'rollup-plugin-node-builtins';
@@ -7,27 +9,46 @@ import json from 'rollup-plugin-json';
 import rollup_sass from 'rollup-plugin-sass';
 import autoprefixer from 'autoprefixer';
 import postcss from 'postcss';
+import dbgFunc from 'debug';
 //import inliner from 'sass-inline-svg';
 import sass from 'sass';
-import {readFileSync} from 'fs';
-import {resolve as path_resolve}  from 'path';
+
+
+const dbg = dbgFunc('chunk-upload:rollup');
 
 function svg_inline(value)
 {
     const path = path_resolve('./assets', value.dartValue.a);
-
-    //console.log('svg_inline', value.dartValue.a, path);
-
     const content = readFileSync(path);
 
-    return new sass.types.String('url("data:image/svg+xml;base64,' + content.toString('base64') + '")');
+    const dart_value = new sass.types.String('url("data:image/svg+xml;base64,' + content.toString('base64') + '")');
+    return dart_value;
+}
+
+function run_postcss(css, id)
+{
+    const options = {
+        from : id
+    };
+
+    const processor =  postcss([autoprefixer]);
+
+    return new Promise((resolve, reject) =>{
+        
+        const lazy = processor.process(css, options);
+        
+        lazy.then( (result) => { 
+            //debugger;
+            resolve(result.css); 
+        }).catch(error => { reject(error); });
+    });
+    
 }
 
 const sass_plugin = rollup_sass({
     
-    processor: css => postcss([autoprefixer])
-        .process(css)
-        .then(result => result.css)
+    processor: run_postcss
+        
     , insert: true
 
     //sass options
@@ -45,7 +66,12 @@ const g_plugins = [
         preferBuiltins: true
         , browser: true
     })
-    , commonjs()
+    , commonjs(
+        {
+            exclude: [ 'node_modules/superagent-proxy/**' ]
+            , ignore: ['superagent-proxy']
+        }
+    )
     , built_ins()
     , globals()
     , json()
@@ -76,8 +102,8 @@ const g_plugins = [
 let ui_plugins = [];
 ui_plugins.push(sass_plugin);
 ui_plugins = ui_plugins.concat(g_plugins);
-console.log('ui_plugins', ui_plugins.length);
 
+dbg('ui_plugins', ui_plugins.length);
 
 
 const g_plugins_server = [
@@ -90,6 +116,8 @@ const g_plugins_server = [
         , plugins: ['@babel/plugin-transform-object-assign']
     })
 ];
+
+const g_server_external = ['events', 'superagent', 'superagent-proxy'];
 
 
 export default [
@@ -126,7 +154,7 @@ export default [
         , plugins: ui_plugins
     }
     , {
-        external: []
+        external: g_server_external 
         , input: 'src/client.js'
 
         , output: 
@@ -141,7 +169,7 @@ export default [
         , plugins: g_plugins_server
     }
     ,{
-        external: []
+        external: g_server_external
         , input: 'src/UI/uploader.js'
         , output: 
       

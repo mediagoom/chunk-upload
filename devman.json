@@ -12,6 +12,17 @@
           , "break" : false
           , "options" : {"shell" : false, "env" : {"PORT": 3000}}
         }
+        ,{
+          "name" : "local-live-reload"
+          , "cmd" : {"proc": "npm", "args": ["run", "live"]}
+          , "options" : {  "shell" : true }
+        }
+        ,{
+          "name" : "local-rollup-live"
+          , "watch" : ["rollup.config.js"]
+          , "cmd" : {"proc": "npm", "args": ["run", "build", "--", "-w"]}
+          , "options" : {  "shell" : true }
+        }
     ]
 
    , "server" : { "url" : "http://localhost:3000", "timeout" : 8000 }

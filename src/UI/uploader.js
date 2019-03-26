@@ -1,5 +1,5 @@
 /* global window, document, alert */
-import * as uploader from '../client.js';
+import * as uploader from '../client';
 
 const default_options = {
     url : window.location.protocol + '//' + window.location.host + '/upload'

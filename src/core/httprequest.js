@@ -1,6 +1,23 @@
 /* global Blob, FileReader */
 const request = require('superagent');
-//require('superagent-proxy')(request);
+
+let check_proxy = function(){};
+
+if (typeof require !== 'undefined' && require) {
+    
+    require('superagent-proxy')(request);
+
+    check_proxy = function(req)
+    {
+        if(null != process)
+        {
+            if(null != process.env)
+                if(null != process.env.http_proxy)
+                    req._opt.proxy = process.env.http_proxy;
+        }
+    };
+}
+
 
 function blobToBuffer (blob, cb) {
     if (typeof Blob === 'undefined' || !(blob instanceof Blob)) {
@@ -50,12 +67,12 @@ function _req(opts, resolve, reject)
         });
     }
 
-    /*
+    
     if(undefined !== opts.proxy)
     {
         r.proxy(opts.proxy);
     }
-    */
+    
 
     if(undefined !== opts.body)
         r.send(opts.body);
@@ -122,14 +139,9 @@ class httprequest {
     {
         this._opt = { };
 
-        /*
-        if(null != process)
-        {
-            if(null != process.env)
-                if(null != process.env.http_proxy)
-                    this._opt.proxy = process.env.http_proxy;
-        }
-        */
+        
+        check_proxy(this);
+        
             
         if(null != options)
         {

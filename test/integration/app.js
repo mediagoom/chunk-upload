@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 const express = require('express');
-const uploader = require('../../src/server.js');
 const dbg      = require('debug')('chunk-upload:integration-test-api');
+const uploader = require('../../src/server.js');
 
 const default_options= {
     root : {
@@ -53,6 +53,10 @@ function get_app(options)
         app.use(function (err, req, res, next) {
             
             dbg('app chunk uploader error', err.message, res.status, JSON.stringify(err, null, 4));
+
+            if (res.headersSent) {
+                return next(err);
+            }
 
             const body = `
             ${JSON.stringify(err, null, 4)}

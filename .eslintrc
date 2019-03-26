@@ -1,48 +1,59 @@
 {
+    "plugins": ["import"]
+    , 
     "env": {
-
-        "es6": true,
-        "node": true
-    },
-    "extends": "eslint:recommended",
-    "parserOptions": {
-        "ecmaVersion": 2017
-      , "sourceType": "module"
-    }
-  , "rules": {
-      "indent": [
-          "error",
-          4
-      ],
-      "linebreak-style": [
-        "warn"
-        , "unix"
-      ],
-      "quotes": [
-          "warn",
-          "single"
-      ],
-      "semi": [
-          "warn",
-          "always"
-      ]
-      , "no-console" : [
-          "off"
-      ]
-      , "comma-style" : [
-            "warn"
-          , "first"
-      ]
-    } 
-
-    , "globals"   : {
+            "es6": true
+          , "node": true
+      },
+      "extends": "eslint:recommended",
+      "parserOptions": {
+          "ecmaVersion": 2017
+        , "sourceType": "module"
+      }
+    , "rules": {
+      "import/no-unresolved": [2, {"commonjs": true}]
+      , "import/no-absolute-path": 2
+      , "import/no-deprecated" : 2
+      , "import/first" : 2
+      , "import/exports-last" : 2
+      , "import/extensions" : 2
+      , "import/order" : 2
+      , "import/newline-after-import" :2 
+      , "import/no-extraneous-dependencies" : 2
+      , "indent": [
+            "error",
+            4
+        ],
+        "linebreak-style": [
+          "warn"
+          , "unix"
+        ],
+        "quotes": [
+            "warn",
+            "single"
+        ],
+        "semi": [
+            "warn",
+            "always"
+        ]
+        , "no-console" : [
+            "off"
+        ]
+        , "comma-style" : [
+              "warn"
+            , "first"
+        ]
+      }
+  
+      , "globals"   : {
+          
+          "describe"   : false,
+          "it"         : false,
+          "before"     : false,
+          "beforeEach" : false,
+          "after"      : false,
+          "afterEach"  : false
+      }
       
-        "describe"   : false,
-        "it"         : false,
-        "before"     : false,
-        "beforeEach" : false,
-        "after"      : false,
-        "afterEach"  : false
-    }
-    
-}
+  }
+  
