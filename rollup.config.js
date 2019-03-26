@@ -24,7 +24,9 @@ function svg_inline(value)
 
     const content = readFileSync(path);
 
-    return new sass.types.String('url("data:image/svg+xml;base64,' + content.toString('base64') + '")');
+    const dart_value = new sass.types.String('url("data:image/svg+xml;base64,' + content.toString('base64') + '")');
+
+    return dart_value;
 }
 
 const sass_plugin = rollup_sass({
