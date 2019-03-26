@@ -6,8 +6,12 @@
     , "coverage/": true
     , "*.lcov" : true
 }
+
+, "css.validate": false
+, "less.validate": false
+, "scss.validate": true
+, "vim.useCtrlKeys": false
 ,
-"vim.useCtrlKeys": false,
     "cSpell.words": [
         "builtins",
         "devman",

@@ -28,7 +28,7 @@ function upload(upl)
             // Prevent range overflow
             if (self._range_end > self._file.size) {
                 //self.range_end = self.file_size;
-                throw 'Invalid Range On Upload!';
+                throw new Error('Invalid Range On Upload!');
             }
 
             //console.log("re2 " + self._range_end + " " + self._range_start + " " + self._opt.chunk_size);
@@ -218,7 +218,6 @@ class UploadManager extends EventEmitter {
  
         super();
     
-
         let opt = {
             url : '/upload'
             , chunk_size : (1024 * 8) * 10
@@ -260,14 +259,14 @@ class UploadManager extends EventEmitter {
 
         this.uploader[id] = up;
 
-        this.emit('new', id);
+        this.emit('new', id, file);
 
         return up;
     }
 
     start(id){
 
-        if(null != this.uploader[id])
+        if(undefined === this.uploader[id])
         {
             throw 'invalid id';
         }
@@ -278,7 +277,7 @@ class UploadManager extends EventEmitter {
 
     pause(id){
 
-        if(null != this.uploader[id])
+        if(undefined === this.uploader[id])
         {
             throw 'invalid id';
         }
@@ -289,7 +288,7 @@ class UploadManager extends EventEmitter {
 
     resume(id){
 
-        if(null != this.uploader[id])
+        if(undefined === this.uploader[id])
         {
             throw 'invalid id';
         }
@@ -300,7 +299,7 @@ class UploadManager extends EventEmitter {
 
     status(id)
     {
-        if(null != this.uploader[id])
+        if(undefined === this.uploader[id])
         {
             throw 'invalid id';
         }

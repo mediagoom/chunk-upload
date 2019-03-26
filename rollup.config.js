@@ -13,27 +13,42 @@ import dbgFunc from 'debug';
 //import inliner from 'sass-inline-svg';
 import sass from 'sass';
 
-const dbg = dbgFunc('chunk-upload:rollup');
 
+const dbg = dbgFunc('chunk-upload:rollup');
 
 function svg_inline(value)
 {
     const path = path_resolve('./assets', value.dartValue.a);
-
-    //console.log('svg_inline', value.dartValue.a, path);
-
     const content = readFileSync(path);
 
     const dart_value = new sass.types.String('url("data:image/svg+xml;base64,' + content.toString('base64') + '")');
-
     return dart_value;
+}
+
+function run_postcss(css, id)
+{
+    const options = {
+        from : id
+    };
+
+    const processor =  postcss([autoprefixer]);
+
+    return new Promise((resolve, reject) =>{
+        
+        const lazy = processor.process(css, options);
+        
+        lazy.then( (result) => { 
+            //debugger;
+            resolve(result.css); 
+        }).catch(error => { reject(error); });
+    });
+    
 }
 
 const sass_plugin = rollup_sass({
     
-    processor: css => postcss([autoprefixer])
-        .process(css)
-        .then(result => result.css)
+    processor: run_postcss
+        
     , insert: true
 
     //sass options
