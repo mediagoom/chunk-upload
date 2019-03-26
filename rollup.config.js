@@ -102,6 +102,8 @@ const g_plugins_server = [
     })
 ];
 
+const g_server_external = ['events', 'superagent', 'superagent-proxy'];
+
 
 export default [
     {
@@ -137,7 +139,7 @@ export default [
         , plugins: ui_plugins
     }
     , {
-        external: []
+        external: g_server_external 
         , input: 'src/client.js'
 
         , output: 
@@ -152,7 +154,7 @@ export default [
         , plugins: g_plugins_server
     }
     ,{
-        external: []
+        external: g_server_external
         , input: 'src/UI/uploader.js'
         , output: 
       
