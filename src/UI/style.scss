@@ -1,87 +1,75 @@
 @charset "utf-8";
 
-$bg-color : rgba(64, 170, 107, 0.30);
+$bg-color : rgba(64, 170, 107, 0.3);
 $text-color:  #42b983;
 
-.__uploader_hidden
-{
+.__uploader_hidden {
     display: none;
 }
 
-.__uploader_host
-{
+.__uploader_host {
     display: flex;
     align-items: center;
-    flex-direction: column;    
+    flex-direction: column;
     font-size: 1.1em;
 }
 
-
-%uploader
-{
+%uploader {
     height: 8em;
 }
 
-.__uploader_file{
+.__uploader_file {
     opacity: 0;
-    width:100%;
+    width: 100%;
     height: 100%;
     position: absolute;
-    //border: 3px solid;
-    left:0px;
-    top: 0px;
+    left: 0;
+    top: 0;
     cursor: pointer;
-  
+    z-index: 10;
 }
 
-.__uploader_file_upload_area
-{
+.__uploader_file_upload_area {
     background-color: $bg-color;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 1em;
-    width:100%;
+    width: 100%;
     border-radius: 4px;
     position: relative;
-    min-width:12.8em;
-    @extend %uploader;
+    min-width: 12.8em;
     text-align: center;
 
+    @extend %uploader;
 }
 
-.__uploader_drag_text
-{
+.__uploader_drag_text {
     position: relative;
     top: 2em;
-    color : $text-color;
+    color: $text-color;
 }
 
-%flex
-{
+%flex {
     display: flex;
-    
     justify-content: flex-start;
     align-items: center;
 
     //list-style: square inside svg($value1 : 'upload-folder-icon.svg');
     list-style: none;
-
-    margin-block-start: 0em;
-    padding-inline-start: 0em;
+    margin-block-start: 0;
+    padding-inline-start: 0;
 
     a {
         text-decoration: none;
         color: $text-color;
-            &:visited
-            {
-                color: $text-color;
-            }
-        
+
+        &:visited {
+            color: $text-color;
+        }
     }
 }
 
-.__uploader_folder_select
-{
+.__uploader_folder_select {
     border: 0.1em solid;
     border-radius: 0.4em;
     border-color: $text-color;
@@ -96,45 +84,31 @@ $text-color:  #42b983;
     padding-left: 0.2em;
     padding-right: 0.2em;
     cursor: pointer;
-
-    @extend %flex;
     flex-direction: row;
-
-    
+    @extend %flex;
 }
 
-.__uploader_folder_click
-{
-    display:inline;
+.__uploader_folder_click {
+    display: inline;
     top: -0.3em;
     position: relative;
     margin-top: 0.3em;
-   
 }
 
-
-
-.__uploader_folder_img
-{
+.__uploader_folder_img {
     list-style: none;
-
     padding: 1.2em 1.2em 1.2em 1.2em;
     margin: 0;
-    margin-bottom: .5em;
+    margin-bottom: 0.5em;
     margin-left: 1em;
-	
-
-	background-repeat: no-repeat;
-	background-position: left center;
-	background-size: 2em;
-    
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: 2em;
     background-image: svg($value1 : 'upload-folder-icon.svg');
     filter: invert(100%) brightness(0.1) sepia(1) hue-rotate(124deg) saturate(45);
-
 }
 
-.__uploader_button
-{
+.__uploader_button {
     border: 0.07em solid;
     border-radius: 0.2em;
     border-color: $text-color;
@@ -146,127 +120,109 @@ $text-color:  #42b983;
     height: 2em;
     padding: 0.1em;
     cursor: pointer;
-
     display: table-cell;
-    padding-top: .7em;
+    padding-top: 0.7em;
     text-align: center;
 }
 
-.__uploader_file_list
-{
+.__uploader_file_list {
     @extend %flex;
+
     flex-direction: column;
 
     li {
-        margin: 0.2em 0em 0.2em 0em;
+        margin: 0.2em 0 0.2em 0;
         width: 100%;
         text-align: center;
     }
 }
 
-.__uploader_percentage
-{
+.__uploader_percentage {
     border-radius: 0.2em;
     background-color: lightgrey;
     height: 2em;
     position: relative;
-    div{
+
+    div {
         border-radius: 0.2em;
         position: absolute;
         width: 10em;
         height: 2em;
         //margin: 1rem auto;
-        background-image: 
+        background-image:
+
             repeating-linear-gradient(
-            45deg, 
-            $bg-color , 
-            $bg-color  1rem,
-            $text-color 1rem,
-            $text-color 2rem
+                45deg,
+                $bg-color,
+                $bg-color  1rem,
+                $text-color 1rem,
+                $text-color 2rem
             );
         background-size: 200% 200%;
         animation: __uploader_barber_pole 10s linear infinite;
-
         text-align: center;
         z-index: 1;
     }
 
     span {
-     z-index: 100;
+        z-index: 100;
         position: absolute;
         left: 0;
         width: 100%;
     }
-
-          
 }
 
 @keyframes __uploader_barber_pole {
     100% {
-      background-position: 100% 100%;
+        background-position: 100% 100%;
     }
-  }
+}
 
-  @mixin button-image($file) {
-    
+@mixin button-image($file) {
+
     padding: 0em .8em 0em 1.2em;
     margin-left: -1.4em; 
     margin: 0;
     margin-bottom: .5em;
-    
-	
-
-	background-repeat: no-repeat;
+    background-repeat: no-repeat;
 	background-position: left center;
 	background-size: 2em;
-    
     background-image: svg($value1 : $file);
     filter: invert(100%) brightness(0.1) sepia(1) hue-rotate(124deg) saturate(45);
-  }
+}
 
-  .__uploader_btn_img_options
-  {
-      @include button-image('options.svg');
-  }
+.__uploader_btn_img_options {
+    @include button-image('options.svg');
+}
 
-  .__uploader_btn_img_pause
-  {
-      @include button-image('pause.svg');
-  }
+.__uploader_btn_img_pause {
+    @include button-image('pause.svg');
+}
 
-  .__uploader_btn_img_play
-  {
-      @include button-image('play.svg');
-  }
+.__uploader_btn_img_play {
+    @include button-image('play.svg');
+}
 
-  .__uploader_btn_img_quit
-  {
-      @include button-image('quit.svg');
-  }
+.__uploader_btn_img_quit {
+    @include button-image('quit.svg');
+}
 
-
- .__uploader_notify
- {
+.__uploader_notify {
     border: 0.07em solid;
     border-radius: 0.2em;
-    
- }
- 
- .__uploader_notify_error
- {
+}
+
+.__uploader_notify_error {
     border-color: red;
     background-color: lightcoral;
- }
+}
 
- .__uploader_notify_quitted
- {
+.__uploader_notify_quitted {
     border-color: yellow;
     background-color: lightyellow;
- }
- 
- .__uploader_notify_success
- {
+}
+
+.__uploader_notify_success {
     border-color: $text-color;
     background-color: $bg-color;
- }
-
+}
