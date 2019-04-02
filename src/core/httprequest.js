@@ -2,8 +2,10 @@
 const request = require('superagent');
 
 let check_proxy = function(){};
+const rq = require;
 
-if (typeof require !== 'undefined' && require) {
+
+if (typeof rq !== 'undefined' && rq) {
     
     require('superagent-proxy')(request);
 

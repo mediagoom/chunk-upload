@@ -35,6 +35,7 @@ describe('CLIENT', () => {
         uploader.quit();
 
     });
+    
 
     it('should handle errors', ( ) => {
 

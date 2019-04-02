@@ -7,6 +7,7 @@ import globals from 'rollup-plugin-node-globals';
 import babel from 'rollup-plugin-babel';
 import json from 'rollup-plugin-json';
 import rollup_sass from 'rollup-plugin-sass';
+import replace from 'rollup-plugin-replace';
 import autoprefixer from 'autoprefixer';
 import postcss from 'postcss';
 import dbgFunc from 'debug';
@@ -59,12 +60,23 @@ const sass_plugin = rollup_sass({
     }
 });
 
+const resolve_plugin = replace ({
+    include: '**/httprequest.js'
+    , delimiters: ['', '']
+    , values : {
+        'const rq = require;' : 'const rq = undefined;'
+        , 'require(\'superagent-proxy\')(request);' : ''
+    }
+});
+
+
 
 
 const g_plugins = [
     resolve({
         preferBuiltins: true
         , browser: true
+        
     })
     , commonjs(
         {
@@ -99,15 +111,15 @@ const g_plugins = [
     })
 ];
 
-let ui_plugins = [];
-ui_plugins.push(sass_plugin);
+let ui_plugins = [resolve_plugin, sass_plugin];
 ui_plugins = ui_plugins.concat(g_plugins);
 
 dbg('ui_plugins', ui_plugins.length);
 
 
 const g_plugins_server = [
-    commonjs()
+    resolve_plugin
+    , commonjs()
     , json()
     , babel({
         exclude: 'node_modules/**'
