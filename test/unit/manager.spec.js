@@ -39,7 +39,7 @@ describe('MANAGER', () => {
             
             manager.on('error', (err) => reject(err));
 
-            manager.on('progress', (id) => {
+            manager.on('progress', (progress, id) => {
                 
                 expect(ids).to.include(id);
 

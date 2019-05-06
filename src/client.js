@@ -326,6 +326,8 @@ class UploadManager extends EventEmitter {
         
     }
 
+    get options() {return this._opt;}
+
 }
 
 module.exports = {

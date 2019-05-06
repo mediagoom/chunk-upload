@@ -1,13 +1,18 @@
-/* global window, document, alert */
-import * as uploader from '../client';
+
+//import * as uploader from '../client';
+
+const uploader = require('../client');
+
 
 const default_options = {
-    url : window.location.protocol + '//' + window.location.host + '/upload'
+    url : undefined //window.location.protocol + '//' + window.location.host + '/upload'
     , owner : 'uploader'
     , id : { prefix : '__upm___'}
     , upm_global : '__upm__'
-    , options_function : () => alert('no options available')
-    , file_input_id : '__file_input'
+    , options_function : undefined //() => alert('no options available')
+    , ids : {
+        file_input : '__file_input'
+    }
     , file_list_id: '__file_list__'
     , styled_file_id : '__styled_file_input__'
     , class_uploader_area : '__uploader_file_upload_area'
@@ -37,6 +42,14 @@ const default_options = {
     }
 };
 
+function create_default(win)
+{
+    default_options.url = win.location.protocol + '//' + win.location.host + '/upload' ;
+    default_options.options_function = () => win.alert('no options available');
+
+    return default_options;
+}
+
 function container_id(options, host_id)
 {
     return options.id.prefix + host_id;
@@ -57,7 +70,7 @@ function ui_html(options, host_id)
         </ul>
     
         <div class="${options.class_uploader_area}">
-            <input class="${options.class_uploader}" id="${options.file_input_id}" multiple type="file" onchange='window.${options.upm_global}.selectFiles(this)' class="hidden">
+            <input class="${options.class_uploader}" id="${options.ids.file_input}" multiple type="file" onchange='window.${options.upm_global}.selectFiles(this)' class="hidden">
 
             <p class="${options.class_drag_text}">or drag and drop them here.</p>
         
@@ -71,33 +84,33 @@ function ui_html(options, host_id)
     return html;
 }
 
-function click_file(file_input_id)
+function click_file(win, file_input_id)
 {
-    document.getElementById(file_input_id).click();
+    win.document.getElementById(file_input_id).click();
 }
 
-function attach_chunk_ui(div, options, host_id)
+function attach_chunk_ui(win, div, options, host_id)
 {
-    let chunk_container = document.getElementById(container_id(options, host_id));
+    let chunk_container = win.document.getElementById(container_id(options, host_id));
 
     if(null === chunk_container)
     {
         div.innerHTML = ui_html(options, div.id);
 
-        const styled_file = document.getElementById(options.styled_file_id);
-        styled_file.addEventListener('click', () => click_file(options.file_input_id) );
+        const styled_file = win.document.getElementById(options.styled_file_id);
+        styled_file.addEventListener('click', () => click_file(win, options.file_input_id) );
     }
 }
 
-function file_ui(id, options)
+function file_ui(win, id, options)
 {
-    const div = document.createElement('ul'); 
+    const div = win.document.createElement('ul'); 
 
-    const att = document.createAttribute('id');       
+    const att = win.document.createAttribute('id');       
     att.value = id;                           
     div.setAttributeNode(att); 
     
-    const cls = document.createAttribute('class');
+    const cls = win.document.createAttribute('class');
     cls.value = options.class_uploader_file_list;
     div.setAttributeNode(cls);
 
@@ -167,9 +180,9 @@ function get_children(div)
     };
 }
 
-function error_ui(err, options, id)
+function error_ui(win, err, options, id)
 {
-    const div = document.getElementById(id);
+    const div = win.document.getElementById(id);
     if(null === div) {return;}
     const children = get_children(div);
     
@@ -180,9 +193,9 @@ function error_ui(err, options, id)
     children.notify.children[0].classList.add(options.class.notify.error);  
 }
 
-function complete_ui(options, id)
+function complete_ui(win, options, id)
 {
-    const div = document.getElementById(id);
+    const div = win.document.getElementById(id);
     if(null === div) {return;}
     const children = get_children(div);
         
@@ -196,9 +209,9 @@ function complete_ui(options, id)
     children.notify.children[0].classList.add(options.class.notify.success); 
 }
 
-function quit_ui(options, id)
+function quit_ui(win, options, id)
 {
-    const div = document.getElementById(id);
+    const div = win.document.getElementById(id);
     const children = get_children(div);
 
     children.notify_txt.innerText = 'Upload Quitted.'; 
@@ -210,10 +223,10 @@ function quit_ui(options, id)
     children.notify.children[0].classList.add(options.class.notify.quitted); 
 }
 
-function play_pause(options, id)
+function play_pause(win, options, id)
 {
-    const myself  = window[options.upm_global].uploader[id];
-    const div = document.getElementById(id);
+    const myself  = win[options.upm_global].uploader[id];
+    const div = win.document.getElementById(id);
     const children = get_children(div);
 
     children.notify.classList.add(options.class.hidden);
@@ -231,18 +244,18 @@ function play_pause(options, id)
     update_start_ui(!myself.paused(), children.my_pause, options);
 }
 
-function add_file_ui(id, options)
+function add_file_ui(win, id, options)
 {
-    const myself  = window[options.upm_global].uploader[id];
+    const myself  = win[options.upm_global].uploader[id];
 
-    const file_list = document.getElementById(options.file_list_id);
+    const file_list = win.document.getElementById(options.file_list_id);
 
-    let div = document.getElementById(id);
+    let div = win.document.getElementById(id);
 
     if(null === div)
     {
-        file_list.appendChild(file_ui(id, options));
-        div = document.getElementById(id);
+        file_list.appendChild(file_ui(win, id, options));
+        div = win.document.getElementById(id);
 
         const children = get_children(div);
 
@@ -255,7 +268,7 @@ function add_file_ui(id, options)
                 myself.pause(); 
             } 
             
-            play_pause(options, id); 
+            play_pause(win, options, id); 
         });
 
         children.$opt.addEventListener('click', function () {
@@ -265,38 +278,38 @@ function add_file_ui(id, options)
         children.$quit.addEventListener('click', function () {
                     
             myself.quit();
-            quit_ui(options, id);
+            quit_ui(win, options, id);
             
         });
        
         children.txt.innerHTML = myself.name();
 
         if(myself.status === 'started' || myself.status === 'paused')
-            play_pause(options, id);
+            play_pause(win, options, id);
 
         if(myself.status === 'quitted')
-            quit_ui(options, id);
+            quit_ui(win, options, id);
        
         if(myself.status === 'completed')
-            complete_ui(options, id);
+            complete_ui(win, options, id);
 
         if(myself.status === 'error')
-            error_ui(myself._err, options, id);
+            error_ui(win, myself._err, options, id);
 
     }
 }
 
 
-function new_file(id, options)
+function new_file(win, id, options)
 {    
     
-    const myself  = window[options.upm_global].uploader[id];
+    const myself  = win[options.upm_global].uploader[id];
 
-    add_file_ui(id, options);
+    add_file_ui(win, id, options);
     
     myself.on('progress', function (num) {
 
-        const div = document.getElementById(id);
+        const div = win.document.getElementById(id);
         if(null === div) {return;}
         const children = get_children(div);
 
@@ -310,12 +323,12 @@ function new_file(id, options)
     });
     
     myself.on('completed', () => {
-        complete_ui(options, id);
+        complete_ui(win, options, id);
     });
 
     myself.on('error', (err) => {
 
-        error_ui(err, options, id);
+        error_ui(win, err, options, id);
     });
 
     
@@ -330,29 +343,30 @@ function onerror(err, id, options)
  * @param {*} div_id the object or a id string of the container
  * @param {*} options 
  */
-export function build(div_id, options)
+//export function build(div_id, options)
+module.exports = function(win, div_id, options)
 {
     if(undefined === options)
-        options = default_options;
+        options = create_default(win);
     else
-        options = Object.assign({}, options, default_options);
+        options = Object.assign({}, options, create_default(win));
 
     let div = null;
 
     if(typeof div_id === 'string')
-        div = document.getElementById(div_id);
+        div = win.document.getElementById(div_id);
     else
         div = div_id;
 
-    if(!window[options.upm_global])
+    if(!win[options.upm_global])
     {
         const upm = new uploader.UploadManager();
-        window[options.upm_global] = upm;
+        win[options.upm_global] = upm;
 
         upm.setOptions(options);
-        upm.on('new', (id) => new_file(id, options));
+        upm.on('new', (id) => new_file(win, id, options));
                
-        upm.on('error', (err, id) => onerror(err, id, options));
+        upm.on('error', (err, id) => onerror(win, err, id, options));
         /*
         upm.on('completed', (id) => on_completed(id, options));
         */
@@ -361,13 +375,13 @@ export function build(div_id, options)
 
     if(null != div)
     {
-        attach_chunk_ui(div, options, div.id);
+        attach_chunk_ui(win, div, options, div.id);
 
-        const keys = Object.keys(window[options.upm_global].uploader);
+        const keys = Object.keys(win[options.upm_global].uploader);
 
         for(let idx = 0; idx < keys.length; idx++)
-            add_file_ui(keys[idx], options);
+            add_file_ui(win, keys[idx], options);
     }
     
-    return window[options.upm_global];
-}
+    return win[options.upm_global];
+};
