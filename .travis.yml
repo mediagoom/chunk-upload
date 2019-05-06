@@ -3,6 +3,7 @@ node_js:
 - 10
 - 11 
 - 8
+- stable
 env:
   MOZ_HEADLESS=1
   TEST_BROWSER=firefox
