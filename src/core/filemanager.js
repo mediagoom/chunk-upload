@@ -1,10 +1,9 @@
 
 const fs = require('fs');
 const util = require('util');
-const dbg    = require('debug')('chunk-upload:filemanager');
 const assert = require('assert');//.strict;
 const path = require('path');
-
+const dbg    = require('debug')('chunk-upload:filemanager');
 
 const ulink = util.promisify(fs.unlink);
 const mkdir = util.promisify(fs.mkdir);
@@ -13,6 +12,7 @@ const open = util.promisify(fs.open);
 const read = util.promisify(fs.read);
 const close = util.promisify(fs.close);
 const write = util.promisify(fs.write);
+const truncate = util.promisify(fs.truncate);
 
 async function safe_stat(path)
 {
@@ -30,7 +30,7 @@ async function safe_stat(path)
         }; 
     }
 }
-
+/*
 async function directory_exist_or_create(path) {
     //const stat = await Stat(path);
     try{
@@ -41,6 +41,7 @@ async function directory_exist_or_create(path) {
         assert(err.code === 'EEXIST');
     }
 }
+*/
 
 function resolve_path(start, move)
 {
@@ -74,6 +75,13 @@ module.exports = class filemanager {
         this.path = obj_path;
     }
 
+    async truncate(obj_path, length)
+    {
+
+        const file = resolve_path(this.root, obj_path);
+
+        return truncate(file, length);
+    }
 
     async _open(obj_path, mode)
     {
@@ -119,7 +127,7 @@ module.exports = class filemanager {
 
     async write(obj_path, position, buffer)
     {
-        if(this.exist(obj_path))
+        if(await this.exist(obj_path))
         {
             assert(this.is_file(obj_path));
         }

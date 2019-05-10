@@ -41,6 +41,9 @@ describe('FILE-MANAGER', () => {
         expect( await fm.is_file(f) ).to.be.true;
         expect( await fm.size(f)).to.be.eq(6859);
 
+        expect( await fm.is_file(__dirname)).to.be.false;
+        expect( await fm.is_file('mike')).to.be.false;
+
     });
 
     it('should handle append', async () => {
@@ -60,9 +63,11 @@ describe('FILE-MANAGER', () => {
         const size = await file.size;
 
         expect( fm.root ).to.be.eq(__dirname);
+        let loop1 = 0;
 
         while(written < size)
         {
+            loop1++;
 
             const buff = file.slice(written, written + chunk);
 
@@ -87,5 +92,73 @@ describe('FILE-MANAGER', () => {
 
         expect(c1).to.be.eq(c2);
 
+        written = chunk;
+        await fm.truncate(f2, written);
+
+        let loop2 = 0;
+
+        while(written < size)
+        {
+            loop2++;
+
+            const buff = file.slice(written, written + chunk);
+            const wr = await fm.write(f2, written, buff);
+            written += wr;
+        }
+
+        const fm3 = new filemanager(__dirname);
+        expect( await fm3.size(f2) ).to.be.eq(size);
+
+        expect(loop2 + 1).to.be.eq(loop1);
+
+    });
+    
+    it('should handle close', async () => {
+
+        const fm = new filemanager(__dirname);
+        fm.close();
+
+        const f = './mediagoom.jpg';
+        const obj_path = path.normalize(path.join(__dirname, f));
+
+        const size1 = await fm.size(f);
+        const size2 = await fm.size(obj_path);
+        expect(size1).to.be.eq(size2);
+
+        await fm._open(f, 'r');
+        await fm._open(f, 'r');
+        await fm._open(f, 'a');
+        await fm.close();
+
+        let thrown = false;
+
+        try{
+            await fm.write(__dirname, 0, null);
+        }catch(e)
+        {
+            dbg(e.toString());
+            thrown = true;
+        }
+
+        expect(thrown).to.be.true;
+
+        const mike = './rookie';
+
+        if( await fm.exist(mike) )
+            await fm.delete(mike);
+
+        fm.path = undefined;
+
+        expect( await fm.exist(mike)).to.be.false;
+
+        
+
+        await fm.write(mike, 0, new Buffer('hello'));
+
+        fm.path = undefined;
+
+        expect( await fm.exist(mike)).to.be.true;
+
+        await fm.delete(mike);
     });
 });
