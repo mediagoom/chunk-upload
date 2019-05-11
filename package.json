@@ -16,7 +16,7 @@
     "dev": "node ./node_modules/@mediagoom/devman",
     "server": "node ./test/integration/server.js",
     "stop": "node ./node_modules/@mediagoom/devman stop",
-    "cov-test": "nyc -x 'src/core/**/*.js' npm run test",
+    "cov-test": "nyc npm run test",
     "cov-server": "nyc npm run server",
     "cov-integration": "nyc --clean false npm run integration",
     "cov-client": "nyc --clean false npm run test-client",
