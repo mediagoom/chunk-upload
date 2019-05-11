@@ -2,7 +2,7 @@
 
 const express = require('express');
 const dbg      = require('debug')('chunk-upload:integration-test-api');
-const uploader = require('../../src/server.js');
+const uploader = require('../../src/server');
 
 const default_options= {
     root : {
@@ -52,23 +52,18 @@ function get_app(options)
     {
         app.use(function (err, req, res, next) {
             
-            dbg('app chunk uploader error', err.message, res.status, JSON.stringify(err, null, 4));
+            //dbg('app-chunk-uploader-error:', err.message, res.status, '-->', JSON.stringify(err, null, 4));
 
             if (res.headersSent) {
                 return next(err);
             }
-
-            const body = `
-            ${JSON.stringify(err, null, 4)}
-            ${res.body}
-            `;
 
             let statusCode = 500;
 
             if(err.statusCode !== undefined)
                 statusCode = err.statusCode;
         
-            res.status(statusCode).send(body);
+            res.status(statusCode).send(err);
         });
     }
 
