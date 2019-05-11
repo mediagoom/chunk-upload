@@ -1,13 +1,13 @@
 //const webdriver = require('selenium-webdriver');
-const {Builder, By, Key, until} = require('selenium-webdriver');
-const edge = require('selenium-webdriver/edge');
-const firefox = require('selenium-webdriver/firefox');
-const SauceLabs = require('saucelabs');
-const dbg = require('debug')('selenium:e2e');
-const assert       = require('assert');//.strict;
-const file_detector = require('selenium-webdriver/remote').FileDetector;
+//const edge = require('selenium-webdriver/edge');
 
 const EventEmitter = require('events');
+const assert       = require('assert');//.strict;
+const dbg = require('debug')('selenium:e2e');
+const SauceLabs = require('saucelabs');
+const firefox = require('selenium-webdriver/firefox');
+const {Builder, By, until} = require('selenium-webdriver');
+const file_detector = require('selenium-webdriver/remote').FileDetector;
 
 let _version = '0.0.3';
 

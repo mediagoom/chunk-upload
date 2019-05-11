@@ -1,8 +1,9 @@
 language: node_js
 node_js:
 - 10
-- 9
+- 11 
 - 8
+- stable
 env:
   MOZ_HEADLESS=1
   TEST_BROWSER=firefox
@@ -25,17 +26,17 @@ before_script:
 script:
 - python ./version.py
 - npm run build
-- npm run nyc
+- npm run cov-test
 - npm start
 - cat ./out.log
-- npm test
+- npm run test-client
 - npm run cov-integration
 - npm run cov-client
 - npm run e2e
 - npm stop
 - cat ./out.log
 - ls ./uploader/uploader/mediagoom.jpg
-- npm run cov-uploader
+- npm run mv-uploader
 - npm run cov-text
 - ./node_modules/.bin/nyc report --reporter=text-lcov | coveralls
 - ./node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov && codecov

@@ -156,6 +156,7 @@ function uplaoder(options){
         }
 
         function onData (chunk) {
+            
             if (complete) return;
 
             if(null === buffer)
@@ -220,10 +221,16 @@ function uplaoder(options){
 
                 if(null == cr)
                 {                    
+                    let len = 0;
+
+                    if(null != buffer)
+                        if(null != buffer.length)
+                            len = buffer.length;
+                    
                     done(createError(400, 'request has invalid headers', 'request.size.invalid', {
                         expected: size
-                        ,length: buffer.length
-                        ,received: received
+                        , length: len
+                        , received: received
                     }));
                 }
                 //let regexp = /bytes (\d+)-(\d+)\/(\d+)/gi;

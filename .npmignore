@@ -9,4 +9,10 @@ sample/
 out.log
 *.tmp
 .vscode/
+geckodriver/
+uploader/
+test/
+assets/
+.nyc_output/
+
 

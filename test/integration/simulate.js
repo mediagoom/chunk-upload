@@ -9,6 +9,7 @@ async function req(server, url, chunkid, range, file, buf)
     if(undefined !== buf)
         b = buf;
 
+
     if(undefined === file)
         file = 'broken.mp4';
 
@@ -25,35 +26,55 @@ async function req(server, url, chunkid, range, file, buf)
         .send(b);
 } 
 
-function get_simulator(server, uploader_root)
+function get_simulator(server, uploader_root, expect)
 {
     const url = uploader_root + '/the-broken-id';
     
+
     return {
-        invalid_size : async () => {
+
+        valid : async () =>
+        {
+            let res = await req(server, url, 1, '0-10/30');
+            dbg('valid response 1: ', url, res.status, res.body.message);
+
+            res = await req(server, url, 1, '10-20/30');
+            dbg('valid response 2: ', url, res.status, res.body.message);
+
+
+            res = await req(server, url, 1, '20-30/30');
+            dbg('valid response 3: ', res.status, res.body.message);
             
+            return res;
+                
+        }
+     
+        , invalid_size : async () => {
+     
             let res = await req(server, url, -1, '10-20/60');
-            dbg('invalid_size response 1: ', res.status, res.body);
+            dbg('invalid_size response 1: ', res.status, res.body.message);
+            expect(res.body).to.be.not.null;
+            expect(res.body.message).to.match(/Missing Content-Range/);
 
             res = await req(server, url, 1, '20-40/60');
-            dbg('invalid_size response 2: ', res.status, res.body);
-
-            res = req(server, url, 2, '40-60/60');
-            dbg('invalid_size response 3: ', res.status, res.body);
+            dbg('invalid_size response 2: ', res.status, res.body.message);
+            expect(res.body).to.be.not.null;
+            expect(res.body.message).to.match(/size did not match content length/);
+            
+            res = await req(server, url, 2, '40-60/60');
+            dbg('invalid_size response 3: ', res.status, res.body.message);
 
             return res;
         }
         , broken_start : async () =>
         {
-            
             let res = await req(server, url, 1, '10-20/30');
-            dbg('broken_start response 1: ', url, res.status, res.body);
+            dbg('broken_start response 1: ', url, res.status, res.body.message);
 
-            res = req(server, url, 1, '20-30/30');
-            dbg('broken_start response 2: ', res.status, res.body);
-
+            res = await req(server, url, 1, '20-30/30');
+            dbg('broken_start response 2: ', res.status, res.body.message);
+            
             return res;
-                
                 
         }
     };
