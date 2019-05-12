@@ -19,7 +19,7 @@ describe('FILE-MANAGER', () => {
     it('should delete un-existing file', async () => {
         
         const fm = new filemanager(process.cwd());
-        await fm.delete('./mikeAndFluffy')
+        await fm.delete('./mikeAndFluffy');
     });
 
     it('should handle exist', async () =>

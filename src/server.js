@@ -3,6 +3,16 @@
 const path = require('path');
 const dbg = require('debug')('chunk-upload:server');
 const filemanager = require('./core/filemanager');
+const CRC32    = require('./core/crc').CRC32;
+
+function crc(buffer)
+{
+    const crc32 = new CRC32();
+    crc32.update(buffer);
+    const crc = crc32.finalize();
+
+    return crc;
+}
 /**
  * Make a serializable error object.
  *
@@ -43,6 +53,13 @@ function createError (status, message, type, props) {
     });
 
     return error;
+}
+
+async function get(fm, filepath, start, length)
+{
+    const buff = await fm.read(filepath, start, length);
+
+    return crc(buff);
 }
 
 async function all_data(fm, filepath, start, buffer)
@@ -94,8 +111,9 @@ function uplaoder(options){
               
     return (req, res, next) =>
     {
-        const stream    = req;
-        let complete = false;
+        const method  = req.method;
+        const stream  = req;
+        let complete  = false;
 
         let received  = 0;
         let buffer    = null;
@@ -103,28 +121,11 @@ function uplaoder(options){
         let limit     = opt.limit; //10MB
         let length    = 0; 
 
-        //console.log('method', req.method);
+        const fm = new filemanager(opt.base_path);
+        
+        let filepath =  req.headers['file-name'];        
 
-        // attach listeners
-        stream.on('aborted', onAborted);
-        stream.on('close', cleanup);
-        stream.on('data', onData);
-        stream.on('end', onEnd);
-        stream.on('error', onEnd);
-
-        const cr = req.headers['content-range'];
-        if(undefined === cr)
-        {
-            done(createError(400
-                , 'request has invalid headers. Missing Content-Range.'
-                , 'request.size.invalid'
-                , {             
-                }));
-                
-            return;
-        }
-
-        if(undefined === req.headers['file-name'])
+        if(undefined === filepath)
         {
             done(createError(400
                 , 'request has invalid headers. Missing file-name.'
@@ -135,7 +136,38 @@ function uplaoder(options){
             return;
         }
 
-        const filepath =  req.headers['file-name'];
+        if('POST' === method)
+        {
+            const cl = req.headers['content-length'];
+
+            if(undefined === cl)
+            {
+                done(createError(400
+                    , 'request has invalid headers. Missing Content-Length.'
+                    , 'request.size.invalid'
+                    , {             
+                    }));
+                    
+                return;
+            }
+
+            req.headers['content-range'] = `bytes 0-${cl}/${cl}`;
+
+            filepath = `${filepath}.json`;
+        }
+
+        const cr = req.headers['content-range'];
+
+        if(undefined === cr)
+        {
+            done(createError(400
+                , 'request has invalid headers. Missing Content-Range.'
+                , 'request.size.invalid'
+                , {             
+                }));
+                
+            return;
+        }
 
         let regexp = /bytes (\d+)-(\d+)\/(\d+)/gi;
         let start = 0;
@@ -150,8 +182,24 @@ function uplaoder(options){
 
         size  = end - start;
 
+        if('GET' === method)
+        {
+            get(fm, filepath, start, size).then( (crc32) => {
+                res.send({crc32});
+                next();
+            }).catch( (err) => next(err));
+
+            return;
+        }
+
         buffer = Buffer.alloc(size);
        
+        // attach listeners
+        stream.on('aborted', onAborted);
+        stream.on('close', cleanup);
+        stream.on('data', onData);
+        stream.on('end', onEnd);
+        stream.on('error', onEnd);
         //If you pass anything to the done() function (except the string 'route'), Express regards the current request as being in error and will skip any remaining non-error handling routing and middleware functions.
 
         function nodone(err)
@@ -192,8 +240,7 @@ function uplaoder(options){
 
         function onData (chunk) {
             
-            if (complete) return;
-           
+            if (complete) return;           
 
             chunk.copy(buffer, received);
             received += chunk.length;
@@ -223,7 +270,6 @@ function uplaoder(options){
 
             }
             //let path = opt.base_path;
-            const fm = new filemanager(opt.base_path);
                 
             /*
                 if(null != req.headers.owner)
@@ -239,7 +285,7 @@ function uplaoder(options){
 
             let fend = nodone;
 
-            if(end == total)
+            if(end == total && 'PUT' === method)
             {
                 fend = done;
             }

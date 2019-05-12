@@ -171,7 +171,7 @@ module.exports = class filemanager {
 
     async read(obj_path, position, length)
     {
-        assert(await this.is_file(obj_path));
+        assert(await this.is_file(obj_path), 'cannot read a non-file');
 
         await this._open(obj_path, 'r');
         const buffer = new Buffer(length);

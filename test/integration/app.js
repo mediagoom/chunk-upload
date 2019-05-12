@@ -39,10 +39,9 @@ function get_app(options)
 
     app.put(options.root.uploader, (req, res) => {
     
-        console.log('-------------****');
-        //console.log(JSON.stringify(req.headers));
-        console.log(req.uploader);
-        console.log('-------------**--');
+        dbg('-------------****');
+        dbg(req.uploader);
+        dbg('-------------**--');
     
         res.send('OK');
     

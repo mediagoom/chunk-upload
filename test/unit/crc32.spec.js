@@ -1,5 +1,5 @@
 const expect   = require('chai').expect;
-const dbg      = require('debug')('chunk-uploader:unit-test-crc32');
+//const dbg      = require('debug')('chunk-uploader:unit-test-crc32');
 const CRC32    = require('../../src/core/crc').CRC32;
 
 describe('CRC32', () => {
