@@ -245,7 +245,7 @@ class UploadManager extends EventEmitter {
     {
         if(undefined !== this.uploader[id])
         {
-            throw 'uploader already exist';
+            throw new Error('uploader already exist');
         }
 
         let op = Object.assign(this._opt, options);
@@ -268,7 +268,7 @@ class UploadManager extends EventEmitter {
 
         if(undefined === this.uploader[id])
         {
-            throw 'invalid id';
+            throw new Error('invalid id');
         }
 
         this.uploader[id].start();
@@ -279,7 +279,7 @@ class UploadManager extends EventEmitter {
 
         if(undefined === this.uploader[id])
         {
-            throw 'invalid id';
+            throw new Error('invalid id');
         }
 
         this.uploader[id].pause();
@@ -290,7 +290,7 @@ class UploadManager extends EventEmitter {
 
         if(undefined === this.uploader[id])
         {
-            throw 'invalid id';
+            throw new Error('invalid id');
         }
 
         this.uploader[id].resume();
@@ -301,7 +301,7 @@ class UploadManager extends EventEmitter {
     {
         if(undefined === this.uploader[id])
         {
-            throw 'invalid id';
+            throw new Error('invalid id');
         }
 
         return this.uploader[id].status;

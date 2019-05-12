@@ -185,4 +185,12 @@ describe('CLIENT', () => {
         });
 
     });
+
+
+    it('should have default http_request', () => {
+        const uploader = new chunk.default({name : 'mike'});
+        const request = uploader.http_request();
+
+        expect(request).to.be.not.null;
+    });
 });

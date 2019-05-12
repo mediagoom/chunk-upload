@@ -4,10 +4,8 @@ const chunk    = require('../../src/client.js');
 const fake     = require('./fake');
 
 
-
-
-
 describe('MANAGER', () => {
+
     it('should upload files', () => {
 
         const http_request = new fake.FakeRequest();
@@ -66,6 +64,125 @@ describe('MANAGER', () => {
             //ids.forEach(el => { manager.pause(el);});
         });   
                     
-                    
     });
+
+    it('should handle duplication', () => {
+
+        const file1 = new fake.FakeFile('file1.txt');
+        const file2 = new fake.FakeFile('file1.txt');
+
+        const manager = new chunk.UploadManager();
+
+        const e = {
+            files : [file1, file2]
+        };
+
+        let thrown = false;
+        let msg = '';
+
+        try{
+            manager.selectFiles(e);
+        }catch(e)
+        {
+            thrown = true;
+            msg = e.message;
+        }
+
+        expect(thrown).to.be.true;
+        expect(msg).to.match(/uploader already exist/);
+
+        thrown = false;
+
+        try{
+            manager.pause('123');
+        }catch(e)
+        {
+            thrown = true;
+            msg = e.message;
+        }
+
+        expect(thrown).to.be.true;
+        expect(msg).to.match(/invalid id/);
+        try{
+            manager.start('123');
+        }catch(e)
+        {
+            thrown = true;
+            msg = e.message;
+        }
+
+        expect(thrown).to.be.true;
+        expect(msg).to.match(/invalid id/);
+
+
+        try{
+            manager.resume('123');
+        }catch(e)
+        {
+            thrown = true;
+            msg = e.message;
+        }
+
+        expect(thrown).to.be.true;
+        expect(msg).to.match(/invalid id/);
+
+
+        try{
+            manager.status('123');
+        }catch(e)
+        {
+            thrown = true;
+            msg = e.message;
+        }
+
+        expect(thrown).to.be.true;
+        expect(msg).to.match(/invalid id/);
+
+        expect(e.files.length).to.be.eq(2);
+        e.files = [e.files[0]];
+
+        expect(e.files.length).to.be.eq(1);
+
+        //manager.selectFiles(e);
+
+        const status = manager.status('file1_txt');
+
+        expect(status).to.be.eq('initialized');
+
+        manager.pause('file1_txt');
+
+        expect( manager.status('file1_txt') ).to.be.eq('paused');
+
+    });
+
+
+    it('should raise error', (done) => {
+
+        const file1 = new fake.FakeFile('file1.txt');
+
+        const manager = new chunk.UploadManager();
+
+        const e = {
+            files : [file1]
+        };
+
+        manager.selectFiles(e);
+
+        manager.on('error', (e) => {
+
+            //console.log(e);
+
+            try{
+                expect(e.message).to.match(/invalid start/);
+                done();
+            }catch(err)
+            {
+                done(err);
+            }
+
+        });
+
+        manager.resume('file1_txt');
+    });
+
 });

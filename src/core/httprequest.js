@@ -1,5 +1,5 @@
 /* global Blob, FileReader */
-const request = require('superagent');
+const superagent = require('superagent');
 
 let check_proxy = function(){};
 const rq = require;
@@ -7,7 +7,7 @@ const rq = require;
 
 if (typeof rq !== 'undefined' && rq) {
     
-    require('superagent-proxy')(request);
+    require('superagent-proxy')(superagent);
 
     check_proxy = function(req)
     {
@@ -44,6 +44,10 @@ function blobToBuffer (blob, cb) {
 
 function _req(opts, resolve, reject)
 {
+    let request = superagent;
+
+    if(undefined != opts.request)
+        request = opts.request;
 
     let r = null;
 
@@ -164,6 +168,16 @@ class httprequest {
     put(url, body){
 
         this._opt.method = 'PUT';
+        this._opt.uri    = url;
+
+        this._opt.body   = body;
+
+        return req(this._opt);
+    }
+    
+    post(url, body){
+
+        this._opt.method = 'POST';
         this._opt.uri    = url;
 
         this._opt.body   = body;

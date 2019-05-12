@@ -67,7 +67,7 @@ class FakeFile{
     {
         dbg('slice', start, end);
 
-        assert((end - start) <= chunk_size);
+        assert((end - start) <= chunk_size, 'invalid start size');
         
         return new Array(end - start);
     }
