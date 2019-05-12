@@ -8,7 +8,7 @@ describe('CRC32', () => {
 
         let small_string = '0123456';
 
-        const buffer = new Buffer(small_string);
+        const buffer = Buffer.from(small_string);
 
         const crc32 = new CRC32();
         crc32.update(buffer);

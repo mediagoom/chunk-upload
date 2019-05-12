@@ -52,7 +52,7 @@ function get_app(options)
     {
         app.use(function (err, req, res, next) {
             
-            //dbg('app-chunk-uploader-error:', err.message, res.status, '-->', JSON.stringify(err, null, 4));
+            dbg('app-chunk-uploader-error:', err.message, res.status, '-->', JSON.stringify(err, null, 4));
 
             if (res.headersSent) {
                 return next(err);

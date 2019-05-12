@@ -8,6 +8,7 @@ env:
   MOZ_HEADLESS=1
   TEST_BROWSER=firefox
   NODE_ENV=test
+  DEBUG=chunk-upload:integration-test-api
 addons:
   firefox: latest
 branches:
@@ -29,7 +30,6 @@ script:
 - npm run cov-test
 - npm start
 - cat ./out.log
-- npm run test-client
 - npm run cov-integration
 - npm run cov-client
 - npm run e2e
