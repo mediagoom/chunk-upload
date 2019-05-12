@@ -16,6 +16,12 @@ function crc(buffer)
 
 describe('FILE-MANAGER', () => {
 
+    it('should delete un-existing file', async () => {
+        
+        const fm = new filemanager(process.cwd());
+        await fm.delete('./mikeAndFluffy')
+    });
+
     it('should handle exist', async () =>
     {
         const obj_path = path.normalize(path.join(process.cwd(), './'));
@@ -53,7 +59,7 @@ describe('FILE-MANAGER', () => {
         const f2 = './mediagoom2.jpg';
 
         if( await fm.exist(f2))
-            fm.delete(f2);
+            await fm.delete(f2);
 
         const obj_path = path.normalize(path.join(__dirname, f));
         const file = new test_file(obj_path);

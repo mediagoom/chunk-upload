@@ -129,7 +129,7 @@ module.exports = class filemanager {
     {
         if(await this.exist(obj_path))
         {
-            assert(this.is_file(obj_path));
+            assert(await this.is_file(obj_path));
         }
 
         await this._open(obj_path, 'a');
@@ -143,12 +143,13 @@ module.exports = class filemanager {
 
     async delete(obj_path)
     {
-        return ulink(resolve_path(this.root, obj_path)); 
+        if(await this.exist(obj_path))
+            return ulink(resolve_path(this.root, obj_path)); 
     }
 
     async read(obj_path, position, length)
     {
-        assert(this.is_file(obj_path));
+        assert(await this.is_file(obj_path));
 
         await this._open(obj_path, 'r');
         const buffer = new Buffer(length);

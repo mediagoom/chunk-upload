@@ -33,17 +33,23 @@ function get_simulator(server, uploader_root, expect)
 
     return {
 
-        valid : async () =>
+        valid : async ( repeat ) =>
         {
-            let res = await req(server, url, 1, '0-10/30');
-            dbg('valid response 1: ', url, res.status, res.body.message);
+            if(undefined === repeat)
+                repeat = 1;
 
-            res = await req(server, url, 1, '10-20/30');
-            dbg('valid response 2: ', url, res.status, res.body.message);
+            let res = await req(server, url, 1, '0-10/30');
+            dbg('valid response 1: ', url, res.status);
+
+            let count = 0;
+            while(count++ < repeat){
+                res = await req(server, url, 1, '10-20/30');
+                dbg('valid response 2.', count, ':', url, res.status);
+            }
 
 
             res = await req(server, url, 1, '20-30/30');
-            dbg('valid response 3: ', res.status, res.body.message);
+            dbg('valid response 3: ', res.status);
             
             return res;
                 
