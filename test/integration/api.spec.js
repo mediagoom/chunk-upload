@@ -21,8 +21,6 @@ async function validly(fm, simulator, filename)
     let res = await simulator.valid();
                 
     expect(res.status).to.be.eq(200, 'valid');
-    
-    fm.path = undefined;
 
     const exist = await fm.is_file(filename);
 
@@ -57,6 +55,9 @@ describe('API-TEST', () => {
             server = app;
 
             simulator = Simulator(server, config.uploader, expect);
+
+            const fm = new filemanager(process.cwd());
+            fm.create_dir(config.base_path);
 
         });    
 

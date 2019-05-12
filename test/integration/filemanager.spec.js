@@ -157,8 +157,6 @@ describe('FILE-MANAGER', () => {
 
         expect( await fm.exist(mike)).to.be.false;
 
-        
-
         await fm.write(mike, 0, new Buffer('hello'));
 
         fm.path = undefined;
@@ -166,5 +164,53 @@ describe('FILE-MANAGER', () => {
         expect( await fm.exist(mike)).to.be.true;
 
         await fm.delete(mike);
+    });
+
+    it('should create a directory', async () => {
+
+        const fm = new filemanager(__dirname);
+
+        const dir = 'mike_mouse';
+
+        let exist = await fm.is_directory(dir);
+
+        await fm.delete(dir);
+
+        exist = await fm.is_directory(dir);
+
+        expect(exist).to.be.false;
+
+        await fm.create_dir(dir);
+
+        exist = await fm.is_directory(dir);
+
+        expect(exist).to.be.true;
+
+        await fm.create_dir(dir);
+    });
+
+    it('should delete a directory', async () => {
+
+        const fm = new filemanager(__dirname);
+
+        const dir = 'mike_mouse';
+
+        let exist = await fm.is_directory(dir);
+
+        if(!exist)
+            fm.create_dir(dir);
+
+        exist = await fm.is_directory(dir);
+
+        expect(exist).to.be.true;
+
+        await fm.delete(dir);
+
+        exist = await fm.is_directory(dir);
+
+        expect(exist).to.be.false;
+
+        await fm.delete(dir);
+
     });
 });

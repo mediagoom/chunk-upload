@@ -13,6 +13,7 @@ const read = util.promisify(fs.read);
 const close = util.promisify(fs.close);
 const write = util.promisify(fs.write);
 const truncate = util.promisify(fs.truncate);
+const rmdir = util.promisify(fs.rmdir);
 
 async function safe_stat(path)
 {
@@ -30,9 +31,8 @@ async function safe_stat(path)
         }; 
     }
 }
-/*
+
 async function directory_exist_or_create(path) {
-    //const stat = await Stat(path);
     try{
         await mkdir(path, { recursive: true });
     }catch(err)
@@ -41,7 +41,6 @@ async function directory_exist_or_create(path) {
         assert(err.code === 'EEXIST');
     }
 }
-*/
 
 function resolve_path(start, move)
 {
@@ -65,6 +64,12 @@ module.exports = class filemanager {
         this.mode = undefined;
     }
 
+    reset()
+    {
+        this.path = undefined;
+        this.fn_path = undefined;
+    }
+
     async _stat(obj_path)
     {
         if(obj_path !== this.path)
@@ -80,7 +85,9 @@ module.exports = class filemanager {
 
         const file = resolve_path(this.root, obj_path);
 
-        return truncate(file, length);
+        await truncate(file, length);
+
+        this.reset(); 
     }
 
     async _open(obj_path, mode)
@@ -99,8 +106,7 @@ module.exports = class filemanager {
         if(undefined !== this.fn)
             await close(this.fn);
 
-        this.fn = undefined;
-        this.fn_path = undefined;
+        this.reset();
     }
 
     async exist(obj_path)
@@ -125,6 +131,17 @@ module.exports = class filemanager {
         return this.stat.isFile();
     }
 
+    async is_directory(obj_path)
+    {
+
+        if(! await this.exist(obj_path))
+        {
+            return false;
+        }
+
+        return this.stat.isDirectory();
+    }
+
     async write(obj_path, position, buffer)
     {
         if(await this.exist(obj_path))
@@ -144,7 +161,12 @@ module.exports = class filemanager {
     async delete(obj_path)
     {
         if(await this.exist(obj_path))
-            return ulink(resolve_path(this.root, obj_path)); 
+            if(await this.is_file(obj_path))
+                await ulink(resolve_path(this.root, obj_path));
+            else
+                await rmdir(resolve_path(this.root, obj_path));
+            
+        this.reset();
     }
 
     async read(obj_path, position, length)
@@ -158,8 +180,6 @@ module.exports = class filemanager {
 
         await this.close();
 
-        //return buffer;
-
         return obj.buffer;
     }
     async size(obj_path)
@@ -167,5 +187,11 @@ module.exports = class filemanager {
         assert(await this.is_file(obj_path));
         
         return this.stat.size;
+    }
+
+    async create_dir(obj_path)
+    {
+        await directory_exist_or_create(resolve_path(this.root, obj_path));
+        this.reset();
     }
 };
