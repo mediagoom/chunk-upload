@@ -153,13 +153,9 @@ describe('FILE-MANAGER', () => {
         if( await fm.exist(mike) )
             await fm.delete(mike);
 
-        fm.path = undefined;
-
         expect( await fm.exist(mike)).to.be.false;
 
         await fm.write(mike, 0, new Buffer('hello'));
-
-        fm.path = undefined;
 
         expect( await fm.exist(mike)).to.be.true;
 

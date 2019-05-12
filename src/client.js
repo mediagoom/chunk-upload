@@ -37,18 +37,18 @@ function upload(upl)
             let chunk_id = Math.ceil(self._range_start / self._opt.chunk_size);
                 
             let opt   = {headers:
-            {
-                'Content-Type' : 'application/octet-stream'
-                , 'Content-Range': 'bytes ' + self._range_start 
-                                            + '-' + self._range_end + '/' + self._file.size
-                , 'file-name': self._opt.name
-                , 'chunkid' : chunk_id.toString()
-            }
+                {
+                    'Content-Type' : 'application/octet-stream'
+                    , 'Content-Range': 'bytes ' + self._range_start 
+                                                + '-' + self._range_end + '/' + self._file.size
+                    , 'file-name': self._opt.name
+                    , 'chunkid' : chunk_id.toString()
+                }
             };
-
+            /*
             if(null != self._opt.owner){
                 opt.headers['owner'] = self._opt.owner;
-            }
+            }*/
             if(null != self._opt.id) {
                 opt.headers['fileid'] = self._opt.id;
             } 

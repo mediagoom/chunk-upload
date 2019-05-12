@@ -8,7 +8,7 @@ env:
   MOZ_HEADLESS=1
   TEST_BROWSER=firefox
   NODE_ENV=test
-  DEBUG=chunk-upload:integration-test-api
+  
 addons:
   firefox: latest
 branches:
@@ -35,7 +35,7 @@ script:
 - npm run e2e
 - npm stop
 - cat ./out.log
-- ls ./uploader/uploader/mediagoom.jpg
+- ls ./uploader/mediagoom.jpg
 - npm run mv-uploader
 - npm run cov-text
 - ./node_modules/.bin/nyc report --reporter=text-lcov | coveralls
