@@ -13,8 +13,15 @@ function create_storage_uploader(http_request, chunk_size)
         chunk_size = fake.chunk_size;
     
     const storage = new fake.FakeStorage();
+    
     if(0 < chunk_size)
         storage.setItem(storageKey , JSON.stringify({position : fake.chunk_size, chunk : fake.chunk_size} ));
+
+    if(-2 === chunk_size)
+        storage.setItem(storageKey , 'i am not json');
+    
+    if(-2 === chunk_size)
+        storage.setItem(storageKey , JSON.stringify({ chunk_size })); 
 
     const opts = {
         http_request : ( ) => {return http_request;}
@@ -370,6 +377,26 @@ describe('CLIENT', () => {
         const http_request = new fake.FakeRequest();                
         const uploader = create_storage_uploader(http_request, -1);
 
+
+        expect(uploader.status).to.match(/initial/);
+
+    });
+
+    it('should handle invalid json in storage',  (  ) => {
+
+
+        const http_request = new fake.FakeRequest();                
+        const uploader = create_storage_uploader(http_request, -2);
+
+        expect(uploader.status).to.match(/initial/);
+
+    });
+
+    it('should handle wrong json in storage',  (  ) => {
+
+
+        const http_request = new fake.FakeRequest();                
+        const uploader = create_storage_uploader(http_request, -3);
 
         expect(uploader.status).to.match(/initial/);
 
