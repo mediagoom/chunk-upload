@@ -1,6 +1,15 @@
 const EventEmitter = require('events');
 const httprequest = require('./core/httprequest');
+const CRC32 = require('./core/crc').CRC32;
 
+function crc(buffer)
+{
+    const crc32 = new CRC32();
+    crc32.update(buffer);
+    const crc = crc32.finalize();
+
+    return crc;
+}
 /**
 * Utility method to format bytes into the most logical magnitude (KB, MB,
 * or GB).
@@ -16,6 +25,11 @@ const httprequest = require('./core/httprequest');
 
         return bytes.toFixed(2) + units[i];
 }*/
+
+function storageKey(file)
+{
+    return `${file.name}-${file.lastModified}-${file.size}`;
+}
 
 function upload(upl)
 {
@@ -67,7 +81,9 @@ function upload(upl)
                     // can assume that our last chunk has been processed and exit
                     // out of the function.
                     if (self._range_end === self._file.size) {
-                        //console.log("upload completed"); 
+                        if(undefined !== self._opt.storage)
+                            self._opt.storage.removeItem(storageKey(self._file));
+ 
                         self._onUploadComplete();
                     }
                     else
@@ -88,6 +104,9 @@ function upload(upl)
                         }                                
                                             
                     }
+
+                    if(undefined !== self._opt.storage)
+                        self._opt.storage.setItem(storageKey(self._file), JSON.stringify( {position : self._range_start, chunk : self._opt.chunk_size} ));
 
                     self._onProgress(sn);
                 }
@@ -115,6 +134,8 @@ class Uploader extends EventEmitter {
         this._range_start = 0;
         this._is_paused   = true;
         this._err         = null;
+
+
         
 
         let opt = {
@@ -125,6 +146,8 @@ class Uploader extends EventEmitter {
             , owner: null
             , chunk_size : (1024 * 8) * 10
             , start_position : 0
+            , storage : eval('try{localStorage}catch(e){}')
+
         };
 
         if(null != options)
@@ -150,6 +173,75 @@ class Uploader extends EventEmitter {
         //console.log("re1 " + this._range_end + " " + this._range_start + " " + this._opt.chunk_size);
         //
         this.status       = 'initialized';
+
+        if(undefined !== this._opt.storage)
+        {
+            const info = this._opt.storage.getItem(storageKey(this._file));
+            this.info = null;
+
+            if(null !== info)
+            {
+                try{
+                    this.info = JSON.parse(info);
+                }catch(e)
+                {
+                    console.warn('invalid storage item', e.toString());
+                }
+            }
+            
+
+            this.info 
+            if(null !== this.info)             
+            {
+                
+                //we have info but requested a specific range from outside
+                if(0 < this._range_start || this.info.chunk != this._opt.chunk_size) 
+                {
+                    this.info = undefined;
+                }
+                else
+                {
+                    const data = this._file[this._slice_method](this.info.position - this.info.chunk, this.info.position);
+                    const crc32 = crc(data);
+                    let opt   = {headers:
+                        {
+                            'Content-Type' : 'application/octet-stream'
+                            , 'Content-Range': 'bytes ' + this.info.position 
+                                                        + '-' + (this.info.position + this.info.chunk) + '/' + this._file.size
+                            , 'file-name': this._opt.name
+                            
+                        }
+                    };
+                    const http_request = this.http_request(opt);
+                    this.info.validated = false;
+
+                    http_request.get(this._opt.url).then( (j) => {
+                        
+                        const eventName = 'discardState';
+                        
+                        const crc = j.crc32;
+                        //console.log('crc', crc, crc32);
+                        if(crc32 === crc)
+                        {
+                            if(this.status === 'initialized')
+                            {
+                                this._range_start = this.info.position;
+                                this.info.validated = true;
+                                this.status = 'storageInitialized';
+                                this._raise_storageInitialized(this.info.position);
+                            }
+                            else
+                                this.emit(eventName, 'invalid status');
+                        }
+                        else
+                            this.emit(eventName, 'invalid crc');
+
+                    }).catch( (err) => { this._raise_error(err); this.info = undefined; } );
+                }
+            }
+
+        }
+
     }
 
     http_request(request_options)
@@ -165,7 +257,11 @@ class Uploader extends EventEmitter {
     }
 
     name() {return this._opt.name;}
-
+    
+    _raise_storageInitialized(position)
+    {
+        this.emit('storageInitialized', position);
+    }
     _raise_error(err){
         //console.log("uploader error: " + err.message);
         this._is_paused = true;

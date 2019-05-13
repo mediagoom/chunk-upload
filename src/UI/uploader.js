@@ -98,7 +98,7 @@ function attach_chunk_ui(win, div, options, host_id)
         div.innerHTML = ui_html(options, div.id);
 
         const styled_file = win.document.getElementById(options.styled_file_id);
-        styled_file.addEventListener('click', () => click_file(win, options.file_input_id) );
+        styled_file.addEventListener('click', () => click_file(win, options.ids.file_input) );
     }
 }
 

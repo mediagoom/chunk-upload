@@ -7,6 +7,33 @@ const fake_total_size = process.env['FAKE-SIZE'] || 220;
 const fake_name = 'FAKE.EXE';
 const chunk_size = process.env['CHUNK-SIZE'] || 50;
 
+class FakeStorage {
+
+    constructor(init)
+    {
+        if(undefined !== init)
+            this.keys = init;
+        else    
+            this.keys = {};
+    }
+
+    setItem(name, value)
+    {
+        this.keys[name] = value;
+    }
+
+    getItem(name) { 
+        const val = this.keys[name];
+        
+        if(undefined === val)
+            return null;
+        
+        return val;
+    }
+    
+    removeItem(name) { delete this.keys[name]; }
+}
+
 class FakeRequest {
     
     constructor(throw_error)
@@ -16,6 +43,31 @@ class FakeRequest {
 
         this.throw_error = (typeof throw_error === 'undefined')?false:throw_error;
     }
+
+    get(uri)
+    {
+        dbg('GET', uri);
+        return new Promise( (resolve, reject) => {
+
+            setTimeout( () => {
+
+                if('wrong_crc' === this.throw_error)
+                {
+                    resolve({crc32 : 0x00});
+                    return;
+                }
+                if('error' === this.throw_error)
+                {
+                    reject(new Error('Test Fail Get'));
+                    return;
+                }
+
+                resolve({crc32 : 0x1f877c1e});
+
+            }, 1);
+        });
+    }
+
 
     put(uri, body)
     {
@@ -78,6 +130,7 @@ class FakeFile{
 module.exports = {
     FakeRequest
     , FakeFile
+    , FakeStorage
     , fake_error 
     , fake_total_size 
     , fake_name
