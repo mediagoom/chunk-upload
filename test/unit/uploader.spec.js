@@ -20,7 +20,7 @@ function create_storage_uploader(http_request, chunk_size)
     if(-2 === chunk_size)
         storage.setItem(storageKey , 'i am not json');
     
-    if(-2 === chunk_size)
+    if(-3 === chunk_size)
         storage.setItem(storageKey , JSON.stringify({ chunk_size })); 
 
     const opts = {
