@@ -72,7 +72,8 @@ class FakeRequest {
     put(uri, body)
     {
 
-        if(this.throw_error)
+        this.requests++;
+        if(true === this.throw_error)
         {
             const err = new Error(fake_error);
             
@@ -84,11 +85,22 @@ class FakeRequest {
             throw err; 
         }
 
+        if(1 === this.throw_error && 1 === this.requests)
+        {
+            const err = new Error(fake_error);
+            
+            if('promise' === this.throw_error)
+            {
+                return new Promise( (resolve, reject) => {reject(err);});
+            }
+
+            throw err;  
+        }
+
 
         dbg('PUT', uri, body.length);
 
         this.size += body.length;
-        this.requests++;
 
         return new Promise( (resolve/*, reject*/) => {resolve( {status: 200} );});
     }

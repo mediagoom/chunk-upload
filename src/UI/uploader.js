@@ -47,6 +47,8 @@ function create_default(win)
     default_options.url = win.location.protocol + '//' + win.location.host + '/upload' ;
     default_options.options_function = () => win.alert('no options available');
 
+    default_options.win = win;
+
     return default_options;
 }
 
@@ -145,13 +147,13 @@ function update_start_ui(play, my_pause, options)
     {
         my_pause.classList.remove(options.class_btn.pause);
         my_pause.classList.add(options.class_btn.play);
-        my_pause.nextElementSibling.innerText = 'start';
+        my_pause.nextElementSibling.innerHTML = 'start';
     }
     else
     {
         my_pause.classList.remove(options.class_btn.play);
         my_pause.classList.add(options.class_btn.pause);
-        my_pause.nextElementSibling.innerText = 'pause';
+        my_pause.nextElementSibling.innerHTML = 'pause';
     }
 
 }
@@ -186,7 +188,7 @@ function error_ui(win, err, options, id)
     if(null === div) {return;}
     const children = get_children(div);
     
-    children.notify_txt.innerText = 'Error: ' + err.message;
+    children.notify_txt.innerHTML = 'Error: ' + err.message;
     update_start_ui(false, children.my_pause, options);
 
     children.notify.classList.toggle(options.class.hidden); 
@@ -199,7 +201,7 @@ function complete_ui(win, options, id)
     if(null === div) {return;}
     const children = get_children(div);
         
-    children.notify_txt.innerText = 'Upload Completed.';
+    children.notify_txt.innerHTML = 'Upload Completed.';
         
     children.notify.classList.toggle(options.class.hidden);
     children.notify.previousElementSibling.classList.toggle(options.class.hidden);
@@ -334,9 +336,9 @@ function new_file(win, id, options)
     
 }
 
-function onerror(err, id, options) 
+function onerror(win, err, id, options) 
 { 
-    console.error(err.message, err.stack, id, JSON.stringify(options, null, 4));
+    //win.console.warn(err.message, err.stack, id, JSON.stringify(options, null, 4));
 }
 /**
  * The build function attach the chunk client ui to the dom

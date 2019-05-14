@@ -32,13 +32,6 @@ describe('HTTP REQUEST', () => {
                     
         r.get('https://www.google.com').then(
             (res) => {
-                //console.log('*----------------');
-                //console.log(res.request.statusCode);
-                //console.log(JSON.stringify(res.request.headers));
-                //console.log('----------------');
-                //console.log(res.body);
-                //console.log('----------------');
-                //
                 check(done, () =>{
                     expect(res.response.statusCode).to.equal(200);
                 });

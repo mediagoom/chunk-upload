@@ -10,6 +10,117 @@ function crc(buffer)
 
     return crc;
 }
+
+
+function blobToBuffer (win, blob) {
+
+    return new Promise( (resolve, reject) => {
+
+        if (typeof win.Blob === 'undefined' || !(blob instanceof win.Blob)) {
+            reject( new Error('first argument must be a Blob') );
+        }
+
+        const reader = new win.FileReader();
+
+        function onLoadEnd (e) {
+
+            reader.removeEventListener('loadend', onLoadEnd, false);
+            if (e.error) 
+                reject(e.error);
+            else 
+                resolve( new Buffer(reader.result) );
+
+        }
+
+        reader.addEventListener('loadend', onLoadEnd, false);
+        reader.readAsArrayBuffer(blob);
+    });
+}
+
+async function send (self) 
+{
+    try{
+        // Prevent range overflow
+        if (self._range_end > self._file.size) {
+            //self.range_end = self.file_size;
+            throw new Error('Invalid Range On Upload!');
+        }
+
+
+        let chunk = self._file[self._slice_method](self._range_start, self._range_end);
+
+        if(undefined !== self._opt.win)
+            chunk = await blobToBuffer(self._opt.win, chunk);
+
+        const chunk_id = Math.ceil(self._range_start / self._opt.chunk_size);
+            
+        let opt   = {headers:
+            {
+                'Content-Type' : 'application/octet-stream'
+                , 'Content-Range': 'bytes ' + self._range_start 
+                                            + '-' + self._range_end + '/' + self._file.size
+                , 'file-name': self._opt.name
+                , 'chunkid' : chunk_id.toString()
+            }
+        };
+        /*
+        if(null != self._opt.owner){
+            opt.headers['owner'] = self._opt.owner;
+        }*/
+        if(null != self._opt.id) {
+            opt.headers['fileid'] = self._opt.id;
+        } 
+        
+        
+
+        const http = self.http_request(opt);
+        
+        await http.put(self._opt.url, chunk);
+
+        let n = new Number((self._range_start / self._opt.chunk_size) / (self._file.size / self._opt.chunk_size) * 100);
+
+        let sn = n.toFixed(2);
+                
+
+        // If the end range is already the same size as our file, we
+        // can assume that our last chunk has been processed and exit
+        // out of the function.
+        if (self._range_end === self._file.size) {
+            if(undefined !== self._opt.storage)
+                self._opt.storage.removeItem(storageKey(self._file));
+
+            self._onUploadComplete();
+        }
+        else
+        {
+
+            // Update our ranges
+            self._range_start = self._range_end;
+            self._range_end = self._range_start + self._opt.chunk_size;
+
+            // Prevent range overflow
+            if (self._range_end > self._file.size) {
+                self._range_end = self._file.size;
+            }
+
+            // Continue as long as we aren't paused
+            if (!self._is_paused) {
+                upload(self);
+            }                                
+                                        
+        }
+
+        if(undefined !== self._opt.storage)
+            self._opt.storage.setItem(storageKey(self._file), JSON.stringify( {position : self._range_start, chunk : self._opt.chunk_size} ));
+
+        self._onProgress(sn);
+
+    }catch(err)
+    {
+        self._raise_error(err);
+    }
+}
+
 /**
 * Utility method to format bytes into the most logical magnitude (KB, MB,
 * or GB).
@@ -37,89 +148,7 @@ function upload(upl)
 
     let self = upl;
 
-    setTimeout(function () {
-        try{
-            // Prevent range overflow
-            if (self._range_end > self._file.size) {
-                //self.range_end = self.file_size;
-                throw new Error('Invalid Range On Upload!');
-            }
-
-            //console.log("re2 " + self._range_end + " " + self._range_start + " " + self._opt.chunk_size);
-
-            let chunk = self._file[self._slice_method](self._range_start, self._range_end);
-            let chunk_id = Math.ceil(self._range_start / self._opt.chunk_size);
-                
-            let opt   = {headers:
-                {
-                    'Content-Type' : 'application/octet-stream'
-                    , 'Content-Range': 'bytes ' + self._range_start 
-                                                + '-' + self._range_end + '/' + self._file.size
-                    , 'file-name': self._opt.name
-                    , 'chunkid' : chunk_id.toString()
-                }
-            };
-            /*
-            if(null != self._opt.owner){
-                opt.headers['owner'] = self._opt.owner;
-            }*/
-            if(null != self._opt.id) {
-                opt.headers['fileid'] = self._opt.id;
-            } 
-                            
-            let http = self.http_request(opt);
-            http.put(self._opt.url, chunk).then(
-                (/*res*/) => {
-                    //console.log("re3 " + self._range_end + " " + self._range_start + " " + self._opt.chunk_size);
-
-                    let n = new Number((self._range_start / self._opt.chunk_size) / (self._file.size / self._opt.chunk_size) * 100);
-
-                    let sn = n.toFixed(2);
-                    
-
-                    // If the end range is already the same size as our file, we
-                    // can assume that our last chunk has been processed and exit
-                    // out of the function.
-                    if (self._range_end === self._file.size) {
-                        if(undefined !== self._opt.storage)
-                            self._opt.storage.removeItem(storageKey(self._file));
- 
-                        self._onUploadComplete();
-                    }
-                    else
-                    {
-
-                        // Update our ranges
-                        self._range_start = self._range_end;
-                        self._range_end = self._range_start + self._opt.chunk_size;
-
-                        // Prevent range overflow
-                        if (self._range_end > self._file.size) {
-                            self._range_end = self._file.size;
-                        }
-
-                        // Continue as long as we aren't paused
-                        if (!self._is_paused) {
-                            upload(self);
-                        }                                
-                                            
-                    }
-
-                    if(undefined !== self._opt.storage)
-                        self._opt.storage.setItem(storageKey(self._file), JSON.stringify( {position : self._range_start, chunk : self._opt.chunk_size} ));
-
-                    self._onProgress(sn);
-                }
-                ,  (err) => {self._raise_error(err);}
-            );
-
-        }catch(err)
-        {
-            self._raise_error(err);
-        }
-            
-            
-    }, 20);
+    setTimeout( () => send(self) , 2);
 }
 
 class Uploader extends EventEmitter {
@@ -146,7 +175,8 @@ class Uploader extends EventEmitter {
             , owner: null
             , chunk_size : (1024 * 8) * 10
             , start_position : 0
-            , storage : eval('try{localStorage}catch(e){}')
+            , warn : () => {}
+            , storage : (undefined !== options && undefined !== options.win)?options.win.localStorage:undefined
 
         };
 
@@ -170,8 +200,6 @@ class Uploader extends EventEmitter {
         if(this._range_end > this._file.size)
             this._range_end = this._file.size;
 
-        //console.log("re1 " + this._range_end + " " + this._range_start + " " + this._opt.chunk_size);
-        //
         this.status       = 'initialized';
 
         if(undefined !== this._opt.storage)
@@ -185,12 +213,12 @@ class Uploader extends EventEmitter {
                     this.info = JSON.parse(info);
                 }catch(e)
                 {
-                    console.warn('invalid storage item', e.toString());
+                    this._opt.warn('invalid storage item', e.toString());
                 }
             }
             
 
-            this.info 
+            this.info; 
             if(null !== this.info)             
             {
                 
@@ -220,7 +248,7 @@ class Uploader extends EventEmitter {
                         const eventName = 'discardState';
                         
                         const crc = j.crc32;
-                        //console.log('crc', crc, crc32);
+
                         if(crc32 === crc)
                         {
                             if(this.status === 'initialized')
@@ -263,7 +291,6 @@ class Uploader extends EventEmitter {
         this.emit('storageInitialized', position);
     }
     _raise_error(err){
-        //console.log("uploader error: " + err.message);
         this._is_paused = true;
         this.status = 'error';
         this._err = err;

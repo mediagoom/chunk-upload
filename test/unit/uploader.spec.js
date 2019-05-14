@@ -95,7 +95,7 @@ describe('CLIENT', () => {
 
     it('should handle promise errors', ( ) => {
 
-        const http_request = new fake.FakeRequest('promise');
+        const http_request = new fake.FakeRequest(true);
 
         const opts = {
             http_request : ( ) => {return http_request;}
