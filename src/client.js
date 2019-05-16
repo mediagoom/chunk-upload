@@ -2,7 +2,7 @@ const EventEmitter = require('events');
 const httprequest = require('./core/httprequest');
 const CRC32 = require('./core/crc').CRC32;
 
-function crc(buffer)
+function compute_crc(buffer)
 {
     const crc32 = new CRC32();
     crc32.update(buffer);
@@ -15,6 +15,9 @@ function crc(buffer)
 function blobToBuffer (win, blob) {
 
     return new Promise( (resolve, reject) => {
+
+        if(undefined === win)
+            resolve(blob);
 
         if (typeof win.Blob === 'undefined' || !(blob instanceof win.Blob)) {
             reject( new Error('first argument must be a Blob') );
@@ -37,6 +40,50 @@ function blobToBuffer (win, blob) {
     });
 }
 
+async function reload (self)
+{
+    const chunk = self._file[self._slice_method](self.info.position - self.info.chunk, self.info.position);
+
+    const data = await blobToBuffer(self._opt.win, chunk);
+
+
+                    const crc32 = compute_crc(data);
+                    let opt   = {headers:
+                        {
+                            'Content-Type' : 'application/octet-stream'
+                            , 'Content-Range': 'bytes ' + (self.info.position - self.info.chunk)
+                                                        + '-' + (self.info.position) + '/' + self._file.size
+                            , 'file-name': self._opt.name
+                            
+                        }
+                    };
+                    const http_request = self.http_request(opt);
+                    self.info.validated = false;
+
+                    const j = await http_request.get(self._opt.url); 
+                        
+                        const eventName = 'discardState';
+                        
+                        const crc = j.body.crc32;
+
+                        if(crc32 === crc)
+                        {
+                            if(self.status === 'initialized')
+                            {
+                                self._range_start = self.info.position;
+                                self._range_end = self.info.position + self.info.chunk;
+                                self.info.validated = true;
+                                self.status = 'storageInitialized';
+                                self._raise_storageInitialized(self.info.position);
+                            }
+                            else
+                                self.emit(eventName, 'invalid status');
+                        }
+                        else
+                            self.emit(eventName, 'invalid crc');
+
+}
+
 async function send (self) 
 {
     try{
@@ -48,9 +95,7 @@ async function send (self)
 
 
         let chunk = self._file[self._slice_method](self._range_start, self._range_end);
-
-        if(undefined !== self._opt.win)
-            chunk = await blobToBuffer(self._opt.win, chunk);
+        chunk = await blobToBuffer(self._opt.win, chunk);
 
         const chunk_id = Math.ceil(self._range_start / self._opt.chunk_size);
             
@@ -216,9 +261,7 @@ class Uploader extends EventEmitter {
                     this._opt.warn('invalid storage item', e.toString());
                 }
             }
-            
-
-            this.info; 
+ 
             if(null !== this.info)             
             {
                 
@@ -229,42 +272,9 @@ class Uploader extends EventEmitter {
                 }
                 else
                 {
-                    const data = this._file[this._slice_method](this.info.position - this.info.chunk, this.info.position);
-                    const crc32 = crc(data);
-                    let opt   = {headers:
-                        {
-                            'Content-Type' : 'application/octet-stream'
-                            , 'Content-Range': 'bytes ' + this.info.position 
-                                                        + '-' + (this.info.position + this.info.chunk) + '/' + this._file.size
-                            , 'file-name': this._opt.name
-                            
-                        }
-                    };
-                    const http_request = this.http_request(opt);
-                    this.info.validated = false;
-
-                    http_request.get(this._opt.url).then( (j) => {
-                        
-                        const eventName = 'discardState';
-                        
-                        const crc = j.crc32;
-
-                        if(crc32 === crc)
-                        {
-                            if(this.status === 'initialized')
-                            {
-                                this._range_start = this.info.position;
-                                this.info.validated = true;
-                                this.status = 'storageInitialized';
-                                this._raise_storageInitialized(this.info.position);
-                            }
-                            else
-                                this.emit(eventName, 'invalid status');
-                        }
-                        else
-                            this.emit(eventName, 'invalid crc');
-
-                    }).catch( (err) => { this._raise_error(err); this.info = undefined; } );
+                   reload(this).then( () => {} ).catch(
+                            (err) => this._raise_error(err)
+                   );                  
                 }
             }
 

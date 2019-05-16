@@ -64,7 +64,7 @@ function _req(opts, resolve, reject)
 
     if(undefined !== opts.body)
         r.send(opts.body);
-
+    
     r.end( (error, res) => {
 
         if(null != error){

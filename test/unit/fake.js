@@ -44,6 +44,24 @@ class FakeRequest {
         this.throw_error = (typeof throw_error === 'undefined')?false:throw_error;
     }
 
+    validate(expect, opts)
+    {
+        const regexp = /bytes (\d+)-(\d+)\/(\d+)/gi;
+        const cr = opts.headers['Content-Range'];
+
+        expect(cr).to.be.not.undefined;
+        expect(cr).to.match(regexp);
+        
+        cr.match(regexp);
+
+        const start = parseInt(RegExp.$1);
+        const end   = parseInt(RegExp.$2);
+        const total = parseInt(RegExp.$3);
+
+        expect(start).to.be.lessThan(end);
+        expect(end).to.be.lessThan(total +1);
+    }
+
     get(uri)
     {
         dbg('GET', uri);
@@ -53,7 +71,7 @@ class FakeRequest {
 
                 if('wrong_crc' === this.throw_error)
                 {
-                    resolve({crc32 : 0x00});
+                    resolve({body : {crc32 : 0x00}});
                     return;
                 }
                 if('error' === this.throw_error)
@@ -62,7 +80,7 @@ class FakeRequest {
                     return;
                 }
 
-                resolve({crc32 : 0x1f877c1e});
+                resolve({body : {crc32 : 0x1f877c1e}});
 
             }, 1);
         });

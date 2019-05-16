@@ -243,6 +243,9 @@ function play_pause(win, options, id)
         //myself.pause(); 
     } 
 
+    children.notify_txt.innerHTML = '';
+    children.notify.children[0].classList.remove(options.class.notify.error);  
+
     update_start_ui(!myself.paused(), children.my_pause, options);
 }
 

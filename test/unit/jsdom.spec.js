@@ -40,7 +40,7 @@ function file_reader(window/*, file*/)
         const content = '0123456789ABCDEF';
 
         const fileReader = new window.FileReader();
-        const file = new window.File([content], 'test.txt');
+        const file = new window.File([content], 'test.txt', {lastModified : 1557990997050});
 
         fileReader.onload = function(/*e*/) { 
             
@@ -81,7 +81,7 @@ async function process(window, upload_manager)
 
 
 describe('JSDOM', () => {
-    
+ 
     it('should create ui', () => {
 
         return new Promise( (resolve, reject) => {
@@ -143,7 +143,14 @@ describe('JSDOM', () => {
                         reject( new Error(`uploader error ${err.message} ${count}`));
 
                 });
-                upload_manager.on('completed', () => resolve() );
+                upload_manager.on('completed', 
+                () => {
+                    
+                    const keys = Object.keys(window.localStorage);
+
+                            expect(keys.length).to.be.eq(0);
+                    resolve();
+                } );
                 
 
                 upload_manager.on('progress', (p, id) => { 
@@ -160,17 +167,17 @@ describe('JSDOM', () => {
 
                             expect(el.innerHTML).to.not.match(/this is a unit test error/);
 
-                            el = window.document.evaluate('//ul[@class = "__uploader_file_list"]/li[position() = 3]/div/span', window.document, null, window.XPathResult.ANY_TYPE, null); 
+                            el = window.document.evaluate('//ul[@class = "__uploader_file_list"]/li[position() = 3]/span', window.document, null, window.XPathResult.ANY_TYPE, null); 
                             el = el.iterateNext();
 
                             //console.log(div.innerHTML, '---------', el.outerHTML);
-                            
+                            expect(el.innerHTML).to.match(/(\d\.\d\d%)|()/);
 
-                            expect(el.innerHTML).to.match(/\d\.\d\d%/);
-                            
-                    
-                    
-                    
+                            const keys = Object.keys(window.localStorage);
+
+                            expect(keys.length).to.be.eq(1);
+
+                            //console.log(el.innerHTML, keys[0], window.localStorage.getItem(keys[0]));
 
                 } );
 
@@ -181,6 +188,68 @@ describe('JSDOM', () => {
                 
 
                 //dbg('div', div.outerHTML);
+
+            }catch(err)
+            {
+                reject(err);
+            }
+        });
+    });
+   
+    it('should handle restart', () => {
+
+        return new Promise( (resolve, reject) => {
+
+            try{
+
+                const virtualConsole = new jsdom.VirtualConsole();
+                virtualConsole.sendTo(console);
+                
+                virtualConsole.on('jsdomError', e => { throw e; });
+
+                const window = (new JSDOM(html, { runScripts: 'dangerously'
+                    , virtualConsole 
+                    , url : 'https://chunk.mediagoom.com'
+                })).window;
+
+                
+        //storage.setItem(storageKey , JSON.stringify({position : fake.chunk_size, chunk : fake.chunk_size} ));
+
+                const http_request = new fake.FakeRequest();
+                const upload_manager = ui(window, 'jsdom', {
+                    http_request : (opts) => {
+
+                        http_request.validate(expect, opts);
+        
+
+                        return http_request;
+                    }
+                    , chunk_size : 3
+                    , storage : new fake.FakeStorage({
+                        "test.txt-1557990997050-16" : JSON.stringify({"position":9,"chunk":3})
+                    })
+                });
+
+                const div = window.document.getElementById('jsdom');
+                let count = 0;
+
+                upload_manager.on('error', (err) => {
+
+                    
+                        reject( new Error(`uploader error ${err.message} ${count}`));
+
+                });
+                upload_manager.on('completed', () => resolve() );
+                
+
+                upload_manager.on('progress', (p, id) => { 
+                    
+
+                } );
+
+                process(window, upload_manager).then( () => {} ).catch( 
+                    (e) => reject(e)
+                );
 
             }catch(err)
             {

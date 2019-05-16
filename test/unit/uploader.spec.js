@@ -24,7 +24,10 @@ function create_storage_uploader(http_request, chunk_size)
         storage.setItem(storageKey , JSON.stringify({ chunk_size })); 
 
     const opts = {
-        http_request : ( ) => {return http_request;}
+        http_request : ( opts ) => {
+            http_request.validate(expect, opts);
+            return http_request;
+        }
         , chunk_size 
         , storage  
         
@@ -260,7 +263,7 @@ describe('CLIENT', () => {
                     try{
 
                         expect(http_request.size).to.be.eq(fake.fake_total_size - fake.chunk_size, 'fake_total_size');
-                        expect(http_request.requests).to.be.eq(
+                        expect(http_request.requests + 1).to.be.eq(
                             Math.trunc(fake.fake_total_size / fake.chunk_size) + 
                                 ( (fake.fake_total_size % fake.chunk_size)?1:0 )
                             , 'requests');

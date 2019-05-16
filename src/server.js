@@ -170,17 +170,12 @@ function uplaoder(options){
         }
 
         let regexp = /bytes (\d+)-(\d+)\/(\d+)/gi;
-        let start = 0;
-        let end   = 0;
-        let total = 0;
-        let size = 0;
-        
         cr.match(regexp);
-        start = RegExp.$1;
-        end   = RegExp.$2;
-        total = RegExp.$3;
 
-        size  = end - start;
+        const start = parseInt(RegExp.$1);
+        const end   = parseInt(RegExp.$2);
+        const total = parseInt(RegExp.$3);
+        const size  = end - start;
 
         if('GET' === method)
         {
