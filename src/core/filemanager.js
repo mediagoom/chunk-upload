@@ -171,7 +171,7 @@ module.exports = class filemanager {
 
     async read(obj_path, position, length)
     {
-        assert(typeof position === "number");
+        assert(typeof position === 'number');
 
         assert(await this.is_file(obj_path), 'cannot read a non-file');
 

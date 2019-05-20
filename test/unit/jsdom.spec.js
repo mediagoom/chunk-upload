@@ -1,5 +1,3 @@
-//const fs      = require('fs');
-//const util    = require('util');
 const expect   = require('chai').expect;
 const dbg      = require('debug')('chunk-uploader:unit-test-jsdom');
 const jsdom = require('jsdom');

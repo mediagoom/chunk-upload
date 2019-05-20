@@ -47,8 +47,8 @@ async function reload (self)
     const data = await blobToBuffer(self._opt.win, chunk);
 
 
-                    const crc32 = compute_crc(data);
-                    let opt   = {headers:
+    const crc32 = compute_crc(data);
+    let opt   = {headers:
                         {
                             'Content-Type' : 'application/octet-stream'
                             , 'Content-Range': 'bytes ' + (self.info.position - self.info.chunk)
@@ -56,31 +56,31 @@ async function reload (self)
                             , 'file-name': self._opt.name
                             
                         }
-                    };
-                    const http_request = self.http_request(opt);
-                    self.info.validated = false;
+    };
+    const http_request = self.http_request(opt);
+    self.info.validated = false;
 
-                    const j = await http_request.get(self._opt.url); 
+    const j = await http_request.get(self._opt.url); 
                         
-                        const eventName = 'discardState';
+    const eventName = 'discardState';
                         
-                        const crc = j.body.crc32;
+    const crc = j.body.crc32;
 
-                        if(crc32 === crc)
-                        {
-                            if(self.status === 'initialized')
-                            {
-                                self._range_start = self.info.position;
-                                self._range_end = self.info.position + self.info.chunk;
-                                self.info.validated = true;
-                                self.status = 'storageInitialized';
-                                self._raise_storageInitialized(self.info.position);
-                            }
-                            else
-                                self.emit(eventName, 'invalid status');
-                        }
-                        else
-                            self.emit(eventName, 'invalid crc');
+    if(crc32 === crc)
+    {
+        if(self.status === 'initialized')
+        {
+            self._range_start = self.info.position;
+            self._range_end = self.info.position + self.info.chunk;
+            self.info.validated = true;
+            self.status = 'storageInitialized';
+            self._raise_storageInitialized(self.info.position);
+        }
+        else
+            self.emit(eventName, 'invalid status');
+    }
+    else
+        self.emit(eventName, 'invalid crc');
 
 }
 
@@ -272,9 +272,9 @@ class Uploader extends EventEmitter {
                 }
                 else
                 {
-                   reload(this).then( () => {} ).catch(
-                            (err) => this._raise_error(err)
-                   );                  
+                    reload(this).then( () => {} ).catch(
+                        (err) => this._raise_error(err)
+                    );                  
                 }
             }
 

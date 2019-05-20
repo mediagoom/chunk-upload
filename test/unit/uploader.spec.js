@@ -405,5 +405,139 @@ describe('CLIENT', () => {
 
     });
 
+    it('should handle invalid blob', () => {
+        return new Promise( (resolve, reject) => {
+            
+            const file = new fake.FakeFile();
+            const http_request = new fake.FakeRequest(); 
+            const chunk_size = fake.chunk_size;
+            const opt = { win: {} 
+                , http_request : ( opts ) => {
+                    http_request.validate(expect, opts);
+                    return http_request;
+                }
+                , chunk_size
+            };
+
+            const upload = new chunk.default(file, opt);
+
+            upload.on('error', (e) =>
+            {
+                
+                try{
+                    expect(e.message).to.match(/first argument must be a Blob/);
+                }catch(e)
+                {
+                    reject(e);
+                }
+                resolve();
+                
+            });
+
+            upload.on('complete', ()=> reject( new Error('should not complete')));
+
+            upload.start();
+
+        });
+    });
+
+    it('should handle wrong blob instance', () => {
+        return new Promise( (resolve, reject) => {
+            
+            const file = new fake.FakeFile();
+            const http_request = new fake.FakeRequest(); 
+            const chunk_size = fake.chunk_size;
+            const opt = { win: {
+                FileReader : class {
+                    constructor(){
+                        this.handler = undefined;
+                    }
+                    
+                    addEventListener(t, f){ this.handler = f;}
+                    readAsArrayBuffer() { this.handler(new Error('test error'));}
+                }
+
+                , Blob : class { constructor(){} }
+            } 
+            , http_request : ( opts ) => {
+                http_request.validate(expect, opts);
+                return http_request;
+            }
+            , chunk_size
+            };
+
+            expect(opt.win.Blob).not.to.be.undefined;
+
+            const upload = new chunk.default(file, opt);
+
+            upload.on('error', (e) =>
+            {
+                
+                try{
+                    expect(e.message).to.match(/first argument must be a Blob/);
+                }catch(e)
+                {
+                    reject(e);
+                }
+                resolve();
+                
+            });
+
+            upload.on('complete', ()=> reject( new Error('should not complete')));
+
+            upload.start();
+
+        });
+    });
+
+    it('should handle loadend error', () => {
+        return new Promise( (resolve, reject) => {
+            const err_msg = 'loadend test error'; 
+            const file = new fake.FakeFile();
+            const http_request = new fake.FakeRequest(); 
+            const chunk_size = fake.chunk_size;
+            const opt = { win: {
+                FileReader : class {
+                    constructor(){
+                        this.handler = undefined;
+                    }
+                    
+                    addEventListener(t, f){ this.handler = f;}
+                    readAsArrayBuffer() { this.handler( { error: new Error(err_msg) } );}
+                    removeEventListener(){}
+                }
+
+                , Blob : Object
+            } 
+            , http_request : ( opts ) => {
+                http_request.validate(expect, opts);
+                return http_request;
+            }
+            , chunk_size
+            };
+
+            expect(opt.win.Blob).not.to.be.undefined;
+
+            const upload = new chunk.default(file, opt);
+
+            upload.on('error', (e) =>
+            {
+                
+                try{
+                    expect(e.message).to.match(new RegExp(err_msg));
+                }catch(e)
+                {
+                    reject(e);
+                }
+                resolve();
+                
+            });
+
+            upload.on('complete', ()=> reject( new Error('should not complete')));
+
+            upload.start();
+
+        });
+    });
 
 });

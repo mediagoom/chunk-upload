@@ -37,7 +37,7 @@
             "always"
         ]
         , "no-console" : [
-            "on"
+            "error"
         ]
         , "comma-style" : [
               "warn"
