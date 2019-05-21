@@ -1,5 +1,5 @@
 const expect   = require('chai').expect;
-const dbg      = require('debug')('chunk-uploader:unit-test-crc32');
+//const dbg      = require('debug')('chunk-uploader:unit-test-crc32');
 const CRC32    = require('../../src/core/crc').CRC32;
 
 describe('CRC32', () => {
@@ -8,7 +8,7 @@ describe('CRC32', () => {
 
         let small_string = '0123456';
 
-        const buffer = new Buffer(small_string);
+        const buffer = Buffer.from(small_string);
 
         const crc32 = new CRC32();
         crc32.update(buffer);

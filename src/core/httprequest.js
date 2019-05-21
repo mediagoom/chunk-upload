@@ -1,5 +1,5 @@
 /* global Blob, FileReader */
-const request = require('superagent');
+const superagent = require('superagent');
 
 let check_proxy = function(){};
 const rq = require;
@@ -7,7 +7,7 @@ const rq = require;
 
 if (typeof rq !== 'undefined' && rq) {
     
-    require('superagent-proxy')(request);
+    require('superagent-proxy')(superagent);
 
     check_proxy = function(req)
     {
@@ -21,29 +21,15 @@ if (typeof rq !== 'undefined' && rq) {
 }
 
 
-function blobToBuffer (blob, cb) {
-    if (typeof Blob === 'undefined' || !(blob instanceof Blob)) {
-        throw new Error('first argument must be a Blob');
-    }
-    if (typeof cb !== 'function') {
-        throw new Error('second argument must be a function');
-    }
 
-    var reader = new FileReader();
-
-    function onLoadEnd (e) {
-        reader.removeEventListener('loadend', onLoadEnd, false);
-        if (e.error) cb(e.error);
-        else cb(null, new Buffer(reader.result));
-    }
-
-    reader.addEventListener('loadend', onLoadEnd, false);
-    reader.readAsArrayBuffer(blob);
-}
 
 
 function _req(opts, resolve, reject)
 {
+    let request = superagent;
+
+    if(undefined != opts.request)
+        request = opts.request;
 
     let r = null;
 
@@ -78,7 +64,7 @@ function _req(opts, resolve, reject)
 
     if(undefined !== opts.body)
         r.send(opts.body);
-
+    
     r.end( (error, res) => {
 
         if(null != error){
@@ -115,22 +101,7 @@ function req(opts)
 {
     return new Promise( (resolve, reject) => {
 
-        if (typeof Blob === 'undefined')
-        {
-            _req(opts, resolve, reject);
-        }
-        else
-        {
-            blobToBuffer(opts.body, (err, buffer) =>{
-                if(null != err)
-                    reject(err);
-                else
-                {
-                    opts.body = buffer;
-                    _req(opts, resolve, reject);
-                }
-            });
-        }
+        _req(opts, resolve, reject);
    
     });
 }
@@ -164,6 +135,16 @@ class httprequest {
     put(url, body){
 
         this._opt.method = 'PUT';
+        this._opt.uri    = url;
+
+        this._opt.body   = body;
+
+        return req(this._opt);
+    }
+    
+    post(url, body){
+
+        this._opt.method = 'POST';
         this._opt.uri    = url;
 
         this._opt.body   = body;

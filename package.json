@@ -26,7 +26,7 @@
     "cleanup": "shx rm -fr ./uploader",
     "clean-cov": "shx rm -fr ./.nyc_output",
     "clean-all": "run-p clean cleanup clean-cov",
-    "mv-uploader": "shx mv ./uploader/uploader/coverage.json ./.nyc_output",
+    "mv-uploader": "shx mv ./uploader/coverage.json ./.nyc_output",
     "eslint": "eslint ./src/**/*.js ./test/**/*.js ",
     "test-all": "run-s build test integration start test-client e2e stop",
     "live": "live-server --mount=/:./sample --proxy=/upload:http://localhost:3000/upload"

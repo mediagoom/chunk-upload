@@ -3,12 +3,11 @@ const request  = require('supertest');
 
 const buffer = new Buffer('0123456789');
 
-async function req(server, url, chunkid, range, file, buf)
+async function req(server, url, chunkid, range, file, buf, method)
 {
     let b = buffer;
     if(undefined !== buf)
         b = buf;
-
 
     if(undefined === file)
         file = 'broken.mp4';
@@ -16,7 +15,7 @@ async function req(server, url, chunkid, range, file, buf)
     let content_range = 'Content-Range';
     if(chunkid < 0)
         content_range = 'invalid-header';
-
+/*
     return request(server)
         .put(url)
         .set('file-name', file)
@@ -24,6 +23,24 @@ async function req(server, url, chunkid, range, file, buf)
         .set('Content-Type', 'application/octet-stream')
         .set('chunkid', chunkid)
         .send(b);
+*/
+    let req = request(server);
+
+    if(undefined === method)
+        req = req.put(url);
+
+    if('GET' === method)
+        req = req.get(url);
+    
+    if('POST' === method)
+        req = req.post(url);
+
+    req = req.set('file-name', file)
+        .set(content_range, 'bytes ' + range)
+        .set('Content-Type', 'application/octet-stream')
+        .set('chunkid', chunkid);
+    
+    return req.send(b);
 } 
 
 function get_simulator(server, uploader_root, expect)
@@ -33,22 +50,50 @@ function get_simulator(server, uploader_root, expect)
 
     return {
 
-        valid : async () =>
+        valid : async ( repeat ) =>
         {
-            let res = await req(server, url, 1, '0-10/30');
-            dbg('valid response 1: ', url, res.status, res.body.message);
+            if(undefined === repeat)
+                repeat = 1;
 
-            res = await req(server, url, 1, '10-20/30');
-            dbg('valid response 2: ', url, res.status, res.body.message);
+            let res = await req(server, url, 1, '0-10/30');
+            dbg('valid response 1: ', url, res.status);
+
+            let count = 0;
+            while(count++ < repeat){
+                res = await req(server, url, 1, '10-20/30');
+                dbg('valid response 2.', count, ':', url, res.status);
+            }
 
 
             res = await req(server, url, 1, '20-30/30');
-            dbg('valid response 3: ', res.status, res.body.message);
+            dbg('valid response 3: ', res.status);
             
             return res;
                 
         }
-     
+        , info : async () =>
+        {
+            const res = await req(server, url, 1, '0-30/30', undefined, undefined, 'GET');
+            
+            if(200 != res.status)
+                console.log(res.text);
+
+            expect(res.status).to.be.eq(200);
+
+            return res;
+        }    
+        , post : async () =>
+        {
+            const buffer = Buffer.from('{ "hello" : "world" }');
+            const res = await req(server, url, -1, '====', undefined, buffer, 'POST');
+            
+            if(200 != res.status)
+                console.log(res.text);
+
+            expect(res.status).to.be.eq(200);
+
+            return res;
+        }    
         , invalid_size : async () => {
      
             let res = await req(server, url, -1, '10-20/60');

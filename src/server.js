@@ -1,6 +1,18 @@
 //import fs from 'fs';
-const fs = require('fs');
+//const fs = require('fs');
+const path = require('path');
+const dbg = require('debug')('chunk-upload:server');
+const filemanager = require('./core/filemanager');
+const CRC32    = require('./core/crc').CRC32;
 
+function crc(buffer)
+{
+    const crc32 = new CRC32();
+    crc32.update(buffer);
+    const crc = crc32.finalize();
+
+    return crc;
+}
 /**
  * Make a serializable error object.
  *
@@ -43,6 +55,48 @@ function createError (status, message, type, props) {
     return error;
 }
 
+async function get(fm, filepath, start, length)
+{
+    const buff = await fm.read(filepath, start, length);
+
+    return crc(buff);
+}
+
+async function all_data(fm, filepath, start, buffer)
+{
+    if(await fm.is_file(filepath))
+    {
+        if(0 == start)
+        {
+            dbg('delete ', filepath);
+            await fm.delete(filepath);
+        }
+        else
+        {
+            const size = await fm.size(filepath);
+
+            if(start < size)
+            {
+                await fm.truncate(filepath, start);
+            }
+
+            if(start > size ) 
+            {
+                const err = createError(400, 'request start size is inconsistent file file size', 'request.size.invalid', {
+                    expected: fm.size(filepath)
+                    , received: start
+                });
+
+                throw err;
+            }
+        }
+    } 
+
+    dbg('write', filepath, start, buffer.length);
+
+    await fm.write(filepath, start, buffer);
+            
+}
 
 function uplaoder(options){
         
@@ -54,31 +108,12 @@ function uplaoder(options){
     if(null != options)
         opt = Object.assign(opt, options);
 
-    //path, filepath, buffer, fend <- function end
-    function append(p, f, b, complete/*, start*/){
-        
-        fs.mkdir(p, (e) => {
-
-            if( (null == e) || (e.code === 'EEXIST') )
-            {
-                
-                fs.appendFile(f, b, {encoding : null}, (err) => {complete(err);});           //do something with contents
-                
-
-            } else {
-                //debug
-                complete(e);
-            }
-
-        });
-    }
-
               
     return (req, res, next) =>
     {
-        let stream    = req;
-        let complete = false;
-        //let sync      = true;
+        const method  = req.method;
+        const stream  = req;
+        let complete  = false;
 
         let received  = 0;
         let buffer    = null;
@@ -86,44 +121,89 @@ function uplaoder(options){
         let limit     = opt.limit; //10MB
         let length    = 0; 
 
+        const fm = new filemanager(opt.base_path);
+        
+        let filepath =  req.headers['file-name'];        
+
+        if(undefined === filepath)
+        {
+            done(createError(400
+                , 'request has invalid headers. Missing file-name.'
+                , 'request.size.invalid'
+                , {             
+                }));
+                
+            return;
+        }
+
+        if('POST' === method)
+        {
+            const cl = req.headers['content-length'];
+
+            if(undefined === cl)
+            {
+                done(createError(400
+                    , 'request has invalid headers. Missing Content-Length.'
+                    , 'request.size.invalid'
+                    , {             
+                    }));
+                    
+                return;
+            }
+
+            req.headers['content-range'] = `bytes 0-${cl}/${cl}`;
+
+            filepath = `${filepath}.json`;
+        }
+
+        const cr = req.headers['content-range'];
+
+        if(undefined === cr)
+        {
+            done(createError(400
+                , 'request has invalid headers. Missing Content-Range.'
+                , 'request.size.invalid'
+                , {             
+                }));
+                
+            return;
+        }
+
+        let regexp = /bytes (\d+)-(\d+)\/(\d+)/gi;
+        cr.match(regexp);
+
+        const start = parseInt(RegExp.$1);
+        const end   = parseInt(RegExp.$2);
+        const total = parseInt(RegExp.$3);
+        const size  = end - start;
+
+        if('GET' === method)
+        {
+            get(fm, filepath, start, size).then( (crc32) => {
+                res.send({crc32});
+                next();
+            }).catch( (err) => next(err));
+
+            return;
+        }
+
+        buffer = Buffer.alloc(size);
+       
         // attach listeners
         stream.on('aborted', onAborted);
         stream.on('close', cleanup);
         stream.on('data', onData);
         stream.on('end', onEnd);
         stream.on('error', onEnd);
+        //If you pass anything to the done() function (except the string 'route'), Express regards the current request as being in error and will skip any remaining non-error handling routing and middleware functions.
 
-        let cr = req.headers['content-range'];
-        //let cont = true;
-
-        let regexp = /bytes (\d+)-(\d+)\/(\d+)/gi;
-        let start = 0;
-        let end   = 0;
-        let total = 0;
-        let size = 0;
-    
         function nodone(err)
         {
             if(err == null)
                 res.end();
             else
                 done(err);
-        }       
-              
-        if(null != cr)
-        {
-            /*let m      =*/  cr.match(regexp);
-            start = RegExp.$1;
-            end   = RegExp.$2;
-            total = RegExp.$3;
-
-            size  = end - start;
-
-            buffer = Buffer.alloc(size);
         }
-
-        //If you pass anything to the done() function (except the string 'route'), Express regards the current request as being in error and will skip any remaining non-error handling routing and middleware functions.
-
 
         function done(err)
         {
@@ -132,19 +212,17 @@ function uplaoder(options){
 
             if(err != null)
             {
-                ////console.log("next with error " + err.message);
                 next(err);
             }
             else
             {
-                ////console.log("next OK");
                 next();
             }
-
 
         }
           
         function onAborted () {
+
             if (complete) return;
 
             done(createError(400, 'request aborted', 'request.aborted', {
@@ -157,16 +235,7 @@ function uplaoder(options){
 
         function onData (chunk) {
             
-            if (complete) return;
-
-            if(null === buffer)
-            {
-                done(createError(400, 'request has invalid headers. Missing Content-Range.', 'request.size.invalid'
-                    , {                 
-                    }));
-                    
-                return;
-            }
+            if (complete) return;           
 
             chunk.copy(buffer, received);
             received += chunk.length;
@@ -186,124 +255,41 @@ function uplaoder(options){
             //if(false){
             if (size !== undefined && received !== size) {
 
-                //console.log("---->Invalid Size", size, received, length);
-
-                done(createError(400, 'request size did not match content length.x', 'request.size.invalid.', {
+                done(createError(400, 'request size did not match content length', 'request.size.invalid.', {
                     expected: size
                     , length: length
                     , received: received
                 }));
-            } else {
-                /*var string = decoder
-                ? buffer + (decoder.end() || '')
-                : Buffer.concat(buffer)
-              done(null, string)
-              */
 
-                let path = opt.base_path;
+                return;
 
-                ////console.log(JSON.stringify(req.headers));
-
+            }
+            //let path = opt.base_path;
+                
+            /*
                 if(null != req.headers.owner)
                 {
                     path += req.headers.owner;
                     path += '/';
                 }
+                */
 
-                let filepath = path;
-
-                if(null != req.headers['file-name'])
-                    filepath +=  req.headers['file-name'];
-             
-
-                req['uploader'] = filepath; 
-
-
-                if(null == cr)
-                {                    
-                    let len = 0;
-
-                    if(null != buffer)
-                        if(null != buffer.length)
-                            len = buffer.length;
-                    
-                    done(createError(400, 'request has invalid headers', 'request.size.invalid', {
-                        expected: size
-                        , length: len
-                        , received: received
-                    }));
-                }
-                //let regexp = /bytes (\d+)-(\d+)\/(\d+)/gi;
-                // let m =  cr.match(regexp);
-                //let start = RegExp.$1;
-                //let end   = RegExp.$2;
-                //let total = RegExp.$3;
-
-                //let size  = end - start;
-
-                ////console.log("=======>", cr, regexp, m, start, end, total, received);
-
-                if(size != received)
-                {
-                    //console.log('ERROR INVALID SIZE', size, buffer.length);
-                    done(createError(400, 'request content-size did not match content length', 'request.size.invalid', {
-                        expected: size
-                        ,length: buffer.length
-                        ,received: received
-                    }));
-                }
 
                       
+            req['uploader'] = path.normalize(path.join(options.base_path, filepath)); 
 
-                let fend = nodone;
+            let fend = nodone;
 
-                if(end == total)
-                {
-
-                    //console.log("process end");
-                    fend = done;
-                }
-
-                
-
-                if(0 == start)
-                {
-                    //console.log("new file");
-
-                    fs.stat(filepath, (err/*, stat*/) => {
-                        if(err == null) {
-                            //'File exists'
-                            //console.log('removing', filepath);
-                            fs.unlink(filepath, (err) => {
-                                if(err != null)
-                                    done(err);
-                                else
-                                {
-                                    append(path, filepath, buffer, fend /*, start*/);
-                                }
-                            });
-                        } else if(err.code == 'ENOENT') {
-                            // file does not exist
-                            append(path, filepath, buffer, fend);
-                        } else {
-                            done(err);
-                                           
-                        }
-                    });
-                              
-                }
-                else
-                {
-                    //console.log("process file");
-                    append(path, filepath, buffer, fend /*, start*/);
-
-                               
-                }
+            if(end == total && 'PUT' === method)
+            {
+                fend = done;
             }
 
-              
+            all_data(fm, filepath, start, buffer).then(fend).catch(fend);
+                
+        }      
            
-        }
+        
 
         function cleanup () {
             // buffer = null

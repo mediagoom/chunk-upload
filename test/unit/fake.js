@@ -7,6 +7,33 @@ const fake_total_size = process.env['FAKE-SIZE'] || 220;
 const fake_name = 'FAKE.EXE';
 const chunk_size = process.env['CHUNK-SIZE'] || 50;
 
+class FakeStorage {
+
+    constructor(init)
+    {
+        if(undefined !== init)
+            this.keys = init;
+        else    
+            this.keys = {};
+    }
+
+    setItem(name, value)
+    {
+        this.keys[name] = value;
+    }
+
+    getItem(name) { 
+        const val = this.keys[name];
+        
+        if(undefined === val)
+            return null;
+        
+        return val;
+    }
+    
+    removeItem(name) { delete this.keys[name]; }
+}
+
 class FakeRequest {
     
     constructor(throw_error)
@@ -17,10 +44,54 @@ class FakeRequest {
         this.throw_error = (typeof throw_error === 'undefined')?false:throw_error;
     }
 
+    validate(expect, opts)
+    {
+        const regexp = /bytes (\d+)-(\d+)\/(\d+)/gi;
+        const cr = opts.headers['Content-Range'];
+
+        expect(cr).to.be.not.undefined;
+        expect(cr).to.match(regexp);
+        
+        cr.match(regexp);
+
+        const start = parseInt(RegExp.$1);
+        const end   = parseInt(RegExp.$2);
+        const total = parseInt(RegExp.$3);
+
+        expect(start).to.be.lessThan(end);
+        expect(end).to.be.lessThan(total +1);
+    }
+
+    get(uri)
+    {
+        dbg('GET', uri);
+        return new Promise( (resolve, reject) => {
+
+            setTimeout( () => {
+
+                if('wrong_crc' === this.throw_error)
+                {
+                    resolve({body : {crc32 : 0x00}});
+                    return;
+                }
+                if('error' === this.throw_error)
+                {
+                    reject(new Error('Test Fail Get'));
+                    return;
+                }
+
+                resolve({body : {crc32 : 0x1f877c1e}});
+
+            }, 1);
+        });
+    }
+
+
     put(uri, body)
     {
 
-        if(this.throw_error)
+        this.requests++;
+        if(true === this.throw_error)
         {
             const err = new Error(fake_error);
             
@@ -32,11 +103,22 @@ class FakeRequest {
             throw err; 
         }
 
+        if(1 === this.throw_error && 1 === this.requests)
+        {
+            const err = new Error(fake_error);
+            
+            if('promise' === this.throw_error)
+            {
+                return new Promise( (resolve, reject) => {reject(err);});
+            }
+
+            throw err;  
+        }
+
 
         dbg('PUT', uri, body.length);
 
         this.size += body.length;
-        this.requests++;
 
         return new Promise( (resolve/*, reject*/) => {resolve( {status: 200} );});
     }
@@ -67,7 +149,7 @@ class FakeFile{
     {
         dbg('slice', start, end);
 
-        assert((end - start) <= chunk_size);
+        assert((end - start) <= chunk_size, 'invalid start size');
         
         return new Array(end - start);
     }
@@ -78,6 +160,7 @@ class FakeFile{
 module.exports = {
     FakeRequest
     , FakeFile
+    , FakeStorage
     , fake_error 
     , fake_total_size 
     , fake_name

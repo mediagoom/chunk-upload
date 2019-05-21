@@ -16,6 +16,12 @@ function crc(buffer)
 
 describe('FILE-MANAGER', () => {
 
+    it('should delete un-existing file', async () => {
+        
+        const fm = new filemanager(process.cwd());
+        await fm.delete('./mikeAndFluffy');
+    });
+
     it('should handle exist', async () =>
     {
         const obj_path = path.normalize(path.join(process.cwd(), './'));
@@ -53,7 +59,7 @@ describe('FILE-MANAGER', () => {
         const f2 = './mediagoom2.jpg';
 
         if( await fm.exist(f2))
-            fm.delete(f2);
+            await fm.delete(f2);
 
         const obj_path = path.normalize(path.join(__dirname, f));
         const file = new test_file(obj_path);
@@ -147,18 +153,60 @@ describe('FILE-MANAGER', () => {
         if( await fm.exist(mike) )
             await fm.delete(mike);
 
-        fm.path = undefined;
-
         expect( await fm.exist(mike)).to.be.false;
 
-        
-
         await fm.write(mike, 0, new Buffer('hello'));
-
-        fm.path = undefined;
 
         expect( await fm.exist(mike)).to.be.true;
 
         await fm.delete(mike);
+    });
+
+    it('should create a directory', async () => {
+
+        const fm = new filemanager(__dirname);
+
+        const dir = 'mike_mouse';
+
+        let exist = await fm.is_directory(dir);
+
+        await fm.delete(dir);
+
+        exist = await fm.is_directory(dir);
+
+        expect(exist).to.be.false;
+
+        await fm.create_dir(dir);
+
+        exist = await fm.is_directory(dir);
+
+        expect(exist).to.be.true;
+
+        await fm.create_dir(dir);
+    });
+
+    it('should delete a directory', async () => {
+
+        const fm = new filemanager(__dirname);
+
+        const dir = 'mike_mouse';
+
+        let exist = await fm.is_directory(dir);
+
+        if(!exist)
+            fm.create_dir(dir);
+
+        exist = await fm.is_directory(dir);
+
+        expect(exist).to.be.true;
+
+        await fm.delete(dir);
+
+        exist = await fm.is_directory(dir);
+
+        expect(exist).to.be.false;
+
+        await fm.delete(dir);
+
     });
 });

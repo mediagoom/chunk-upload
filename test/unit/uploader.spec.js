@@ -4,7 +4,39 @@ const chunk    = require('../../src/client.js');
 const fake     = require('./fake');
 
 
+function create_storage_uploader(http_request, chunk_size)
+{
+    const file = new fake.FakeFile();
+    const storageKey = `${file.name}-${file.lastModified}-${file.size}`;
+    
+    if(undefined === chunk_size)
+        chunk_size = fake.chunk_size;
+    
+    const storage = new fake.FakeStorage();
+    
+    if(0 < chunk_size)
+        storage.setItem(storageKey , JSON.stringify({position : fake.chunk_size, chunk : fake.chunk_size} ));
 
+    if(-2 === chunk_size)
+        storage.setItem(storageKey , 'i am not json');
+    
+    if(-3 === chunk_size)
+        storage.setItem(storageKey , JSON.stringify({ chunk_size })); 
+
+    const opts = {
+        http_request : ( opts ) => {
+            http_request.validate(expect, opts);
+            return http_request;
+        }
+        , chunk_size 
+        , storage  
+        
+    };        
+
+    const uploader = new chunk.default(file, opts);
+
+    return uploader;
+}
 
 
 describe('CLIENT', () => {
@@ -66,7 +98,7 @@ describe('CLIENT', () => {
 
     it('should handle promise errors', ( ) => {
 
-        const http_request = new fake.FakeRequest('promise');
+        const http_request = new fake.FakeRequest(true);
 
         const opts = {
             http_request : ( ) => {return http_request;}
@@ -185,4 +217,327 @@ describe('CLIENT', () => {
         });
 
     });
+
+    it('should have default http_request', () => {
+        const uploader = new chunk.default({name : 'mike'});
+        const request = uploader.http_request();
+
+        expect(request).to.be.not.null;
+    });
+
+    it('should chunk and upload a file from storage recovery',  (  ) => {
+
+        return new Promise((resolve, reject) => {
+
+            try{
+                const http_request = new fake.FakeRequest();                
+                const uploader = create_storage_uploader(http_request);
+                
+                uploader.on('storageInitialized', (p) => {
+                    try{
+                        expect(p).to.be.eq(fake.chunk_size);
+                        uploader.start();
+                    }catch(err)
+                    {
+                        reject(err);
+                    }
+                });
+
+                uploader.on('progress', (sn) => {
+                    
+                    dbg('progress', sn);
+
+                    if(uploader.paused())
+                    {
+                        dbg('resume');
+                        uploader.resume();
+                    }
+
+                });
+
+                uploader.on('completed', () => {
+                    
+                    dbg('completed', Math.trunc(fake.fake_total_size / fake.chunk_size), (fake.fake_total_size % fake.chunk_size)
+                        , http_request.size,  http_request.requests);
+
+                    try{
+
+                        expect(http_request.size).to.be.eq(fake.fake_total_size - fake.chunk_size, 'fake_total_size');
+                        expect(http_request.requests + 1).to.be.eq(
+                            Math.trunc(fake.fake_total_size / fake.chunk_size) + 
+                                ( (fake.fake_total_size % fake.chunk_size)?1:0 )
+                            , 'requests');
+
+                    }catch(err)
+                    {
+                        reject(err);
+                    }
+       
+                    resolve();
+                });
+
+                uploader.on('error', (err)=> {reject(err);});
+                
+                //uploader.start();
+                //uploader.pause();
+                
+                
+                //expect(uploader.paused()).to.be.true;
+                
+
+            }catch(err)
+            {
+                reject(err);
+            }
+        });
+
+    });
+
+    it('should handle GET failure',  (  ) => {
+
+        return new Promise((resolve, reject) => {
+
+            const http_request = new fake.FakeRequest('error');                
+            const uploader = create_storage_uploader(http_request);
+
+            uploader.on('error', (e) => {
+                try{
+                    expect(e.message).to.match(/Test Fail Get/);
+                    resolve();
+                }catch(err)
+                {
+                    reject(err);
+                }
+            });
+        });
+    });
+        
+    it('should handle change chunk size',  (  ) => {
+
+        return new Promise((resolve, reject) => {
+
+            const http_request = new fake.FakeRequest();                
+            const uploader = create_storage_uploader(http_request, 12);
+            
+
+            try{
+                expect(uploader.info).to.be.undefined;
+                resolve();
+            }catch(err)
+            {
+                reject(err);
+            }
+
+        });
+    });
+    
+    it('should handle invalid crc',  (  ) => {
+
+        return new Promise((resolve, reject) => {
+
+            const http_request = new fake.FakeRequest('wrong_crc');                
+            const uploader = create_storage_uploader(http_request);
+           
+            uploader.on('discardState', (reason) => {
+
+                try{
+                    expect(reason).to.match(/invalid crc/);
+                    resolve();
+                }catch(err)
+                {
+                    reject(err);
+                }
+
+            });
+        });
+    });
+ 
+    it('should handle invalid status',  (  ) => {
+
+        return new Promise((resolve, reject) => {
+
+            const http_request = new fake.FakeRequest();                
+            const uploader = create_storage_uploader(http_request);
+            uploader.status = 'invalid';
+
+            uploader.on('discardState', (reason) => {
+
+                try{
+                    expect(reason).to.match(/invalid status/);
+                    resolve();
+                }catch(err)
+                {
+                    reject(err);
+                }
+
+            });
+        });
+    });
+ 
+    it('should handle missing key in storage',  (  ) => {
+
+
+        const http_request = new fake.FakeRequest();                
+        const uploader = create_storage_uploader(http_request, -1);
+
+
+        expect(uploader.status).to.match(/initial/);
+
+    });
+
+    it('should handle invalid json in storage',  (  ) => {
+
+
+        const http_request = new fake.FakeRequest();                
+        const uploader = create_storage_uploader(http_request, -2);
+
+        expect(uploader.status).to.match(/initial/);
+
+    });
+
+    it('should handle wrong json in storage',  (  ) => {
+
+
+        const http_request = new fake.FakeRequest();                
+        const uploader = create_storage_uploader(http_request, -3);
+
+        expect(uploader.status).to.match(/initial/);
+
+    });
+
+    it('should handle invalid blob', () => {
+        return new Promise( (resolve, reject) => {
+            
+            const file = new fake.FakeFile();
+            const http_request = new fake.FakeRequest(); 
+            const chunk_size = fake.chunk_size;
+            const opt = { win: {} 
+                , http_request : ( opts ) => {
+                    http_request.validate(expect, opts);
+                    return http_request;
+                }
+                , chunk_size
+            };
+
+            const upload = new chunk.default(file, opt);
+
+            upload.on('error', (e) =>
+            {
+                
+                try{
+                    expect(e.message).to.match(/first argument must be a Blob/);
+                }catch(e)
+                {
+                    reject(e);
+                }
+                resolve();
+                
+            });
+
+            upload.on('complete', ()=> reject( new Error('should not complete')));
+
+            upload.start();
+
+        });
+    });
+
+    it('should handle wrong blob instance', () => {
+        return new Promise( (resolve, reject) => {
+            
+            const file = new fake.FakeFile();
+            const http_request = new fake.FakeRequest(); 
+            const chunk_size = fake.chunk_size;
+            const opt = { win: {
+                FileReader : class {
+                    constructor(){
+                        this.handler = undefined;
+                    }
+                    
+                    addEventListener(t, f){ this.handler = f;}
+                    readAsArrayBuffer() { this.handler(new Error('test error'));}
+                }
+
+                , Blob : class { constructor(){} }
+            } 
+            , http_request : ( opts ) => {
+                http_request.validate(expect, opts);
+                return http_request;
+            }
+            , chunk_size
+            };
+
+            expect(opt.win.Blob).not.to.be.undefined;
+
+            const upload = new chunk.default(file, opt);
+
+            upload.on('error', (e) =>
+            {
+                
+                try{
+                    expect(e.message).to.match(/first argument must be a Blob/);
+                }catch(e)
+                {
+                    reject(e);
+                }
+                resolve();
+                
+            });
+
+            upload.on('complete', ()=> reject( new Error('should not complete')));
+
+            upload.start();
+
+        });
+    });
+
+    it('should handle loadend error', () => {
+        return new Promise( (resolve, reject) => {
+            const err_msg = 'loadend test error'; 
+            const file = new fake.FakeFile();
+            const http_request = new fake.FakeRequest(); 
+            const chunk_size = fake.chunk_size;
+            const opt = { win: {
+                FileReader : class {
+                    constructor(){
+                        this.handler = undefined;
+                    }
+                    
+                    addEventListener(t, f){ this.handler = f;}
+                    readAsArrayBuffer() { this.handler( { error: new Error(err_msg) } );}
+                    removeEventListener(){}
+                }
+
+                , Blob : Object
+            } 
+            , http_request : ( opts ) => {
+                http_request.validate(expect, opts);
+                return http_request;
+            }
+            , chunk_size
+            };
+
+            expect(opt.win.Blob).not.to.be.undefined;
+
+            const upload = new chunk.default(file, opt);
+
+            upload.on('error', (e) =>
+            {
+                
+                try{
+                    expect(e.message).to.match(new RegExp(err_msg));
+                }catch(e)
+                {
+                    reject(e);
+                }
+                resolve();
+                
+            });
+
+            upload.on('complete', ()=> reject( new Error('should not complete')));
+
+            upload.start();
+
+        });
+    });
+
 });
