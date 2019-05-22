@@ -99,7 +99,7 @@ function svg_inline(value)
                     , { loader: 'sass-loader'
                         , options: {
                             functions: {
-                                'svg($value1)' : svg_inline
+                                'svg-load($value1)' : svg_inline
                             }
                         }
                     }

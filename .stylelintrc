@@ -2,6 +2,9 @@
   "extends": "stylelint-config-standard",
   "rules": {
     "indentation": [4]
-    
+   , "at-rule-no-unknown" : [true , ignoreAtRules: ["mixin", /regex/, "extend", "include"] ] 
+   , "length-zero-no-unit" : null
+   , "number-leading-zero" : null
   }
+  
 }
