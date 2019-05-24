@@ -44,6 +44,56 @@ function jsdom_event(target, event)
     });
 }
 
+function upm_event(event_manager, args, type)
+{
+
+    if(null !== event_manager.resolver)
+    {
+        const resolve = event_manager.resolver;
+        event_manager.resolver = null;
+
+        resolve({args, type});
+
+        return;
+    }
+
+    event_manager.events.push({args, type}); 
+
+}
+
+function upm_event_wait(upm)
+{
+    return new Promise( (resolve, reject) => {
+        if(0 < upm.event_manager.events.length)
+        {
+            const ev = upm.event_manager.events[0];
+            upm.event_manager.events = upm.event_manager.events.slice(1);
+
+            resolve(ev);
+        }
+        else
+        {
+            upm.event_manager.resolver = resolve;
+        }
+    });
+}
+
+function upm_event_prepare(upm)
+{
+    if(undefined !== upm.event_manager)
+        return;
+    
+    upm.event_manager = {
+        resolver : null
+        , events : []
+    };
+
+    upm.on('error', () => { upm_event(upm.event_manager, arguments, 'error'); });
+
+    upm.on('progress', () => { upm_event(upm.event_manager, arguments, 'progress'); });
+    upm.on('completed', () => { upm_event(upm.event_manager, arguments, 'completed'); });
+}
+
 
 function file_reader(window/*, file*/)
 {
@@ -85,7 +135,8 @@ async function process(window, upload_manager)
     el = el.iterateNext();
     expect(el).to.be.not.null;
 
-    el.dispatchEvent(new window.Event('click'));
+    //el.dispatchEvent(new window.Event('click'));
+    await jsdom_event(el);
 
     return el;
 
@@ -199,45 +250,42 @@ describe('JSDOM', () => {
             });
         });
    
-        it('should handle restart', () => {
-
-            return new Promise( (resolve, reject) => {
-
-                try{
+        it('should handle restart', async () => {
 
 
-                    const http_request = new fake.FakeRequest();
-                    const upload_manager = ui(window, 'jsdom', {
-                        http_request : (opts) => {
 
-                            http_request.validate(expect, opts);
+            const http_request = new fake.FakeRequest();
+            const upload_manager = ui(window, 'jsdom', {
+                http_request : (opts) => {
+
+                    http_request.validate(expect, opts);
         
 
-                            return http_request;
-                        }
-                        , chunk_size : 3
-                        , storage : new fake.FakeStorage({
-                            'test.txt-1557990997050-16' : JSON.stringify({'position':9,'chunk':3})
-                        })
-                    });
-
-
-                    upload_manager.on('error', (err) => {
-
-                        reject( new Error(`uploader error ${err.message} `));
-
-                    });
-                    upload_manager.on('completed', () => resolve() );
-
-                    process(window, upload_manager).then( () => {} ).catch( 
-                        (e) => reject(e)
-                    );
-
-                }catch(err)
-                {
-                    reject(err);
+                    return http_request;
                 }
+                , chunk_size : 3
+                , storage : new fake.FakeStorage({
+                    'test.txt-1557990997050-16' : JSON.stringify({'position':9,'chunk':3})
+                })
             });
+
+            upm_event_prepare(upload_manager);
+
+            await process(window, upload_manager);
+
+            let w = true;
+
+            while(w)
+            {
+                const ev = await upm_event_wait(upload_manager);
+                //console.log(ev.type);
+
+                expect(['completed', 'progress']).to.be.include(ev.type);
+                
+
+                if('completed' === ev.type)
+                    w = false;
+            }
 
         });
     });
@@ -336,8 +384,6 @@ describe('JSDOM', () => {
             size.value = '5';
             //click ok
             await jsdom_event(ok);
-
-            console.log(dialog.outerHTML);
 
             expect(upload_manager.Options.chunk_size).to.be.eq(5);
                     
