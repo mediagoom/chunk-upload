@@ -121,7 +121,9 @@ async function process(window, upload_manager)
 
     const input = window.document.getElementById(upload_manager.options.ids.file_input);
     jutil.implForWrapper(input.files).push(file);
-    input.dispatchEvent(new window.Event('change'));
+    //input.dispatchEvent(new window.Event('change'));
+
+    await jsdom_event(input, 'change');
 
     const div = window.document.getElementById('jsdom');
 
@@ -146,7 +148,7 @@ async function process(window, upload_manager)
 describe('JSDOM', () => {
     let window = undefined;
 
-    const http_request = new fake.FakeRequest(1);
+    const http_request = new fake.FakeRequest();
     
     beforeEach(() =>{
 
@@ -165,96 +167,88 @@ describe('JSDOM', () => {
  
     describe('Uploader', () =>{
    
-        it('should create ui', () => {
+        it('should create ui', async () => {
 
-            return new Promise( (resolve, reject) => {
-
-                try{
-
-                    const upload_manager = ui(window, 'jsdom', {
-                        http_request : () => {
-                            return http_request;
-                        }
-                        , chunk_size : 3
-                    });
-
-                    let count = 0;
-
-                    upload_manager.on('error', (err) => {
-
-                        if(0 === count)
-                        {
-
-                            count++;
-
-                            setTimeout( () => {
-
-                                let el = window.document.evaluate('//ul[@class = "__uploader_file_list"]/li[position() = 4]/div[position() = 1]', window.document, null, window.XPathResult.ANY_TYPE, null); 
-                                el = el.iterateNext();
-
-                                expect(el.innerHTML).to.match(/this is a unit test error/);
-                            
-                                el = window.document.evaluate('//ul[@class = "__uploader_file_list"]/li[position() = 2]/a[position() = 1]', window.document, null, window.XPathResult.ANY_TYPE, null); 
-
-                                el = el.iterateNext();
-                                expect(el).to.be.not.null;
-
-                                el.dispatchEvent(new window.Event('click'));
-                            
-                            }, 10);
-
-                        }
-                        else
-                            reject( new Error(`uploader error ${err.message} ${count}`));
-
-                    });
-
-                    upload_manager.on('completed', () => {
-                    
-                        const keys = Object.keys(window.localStorage);
-
-                        expect(keys.length).to.be.eq(0);
-                        resolve();
-                    } );
-                
-
-                    upload_manager.on('progress', (/*p, id*/) => { 
-                    
-
-                        let el = window.document.evaluate('//ul[@class = "__uploader_file_list"]/li[position() = 4]/div[position() = 1]', window.document, null, window.XPathResult.ANY_TYPE, null); 
-                        el = el.iterateNext();
-
-                        expect(el.innerHTML).to.not.match(/this is a unit test error/);
-
-                        el = window.document.evaluate('//ul[@class = "__uploader_file_list"]/li[position() = 3]/span', window.document, null, window.XPathResult.ANY_TYPE, null); 
-                        el = el.iterateNext();
-
-                        expect(el.innerHTML).to.match(/(\d\.\d\d%)|()/);
-
-                        const keys = Object.keys(window.localStorage);
-
-                        expect(keys.length).to.be.eq(1);
-
-
-                    } );
-
-                    process(window, upload_manager).then( () => {} ).catch( 
-                        (e) => reject(e)
-                    );
-
-
-                }catch(err)
-                {
-                    reject(err);
+            //let create a request which will throw once
+            const http_request = new fake.FakeRequest(1);
+            const upload_manager = ui(window, 'jsdom', {
+                http_request : () => {
+                    return http_request;
                 }
+                , chunk_size : 3
             });
+
+            upm_event_prepare(upload_manager);
+
+            process(window, upload_manager);
+                    
+                    
+            let w = true;
+            let count = 0;
+            let progress = 0;
+
+            while(w)
+            {
+                const ev = await upm_event_wait(upload_manager);
+                if('error' === ev.type)
+                {
+                    expect(count++).to.be.equal(0);
+
+                    let el = window.document.evaluate('//ul[@class = "__uploader_file_list"]/li[position() = 4]/div[position() = 1]', window.document, null, window.XPathResult.ANY_TYPE, null); 
+                    el = el.iterateNext();
+
+                    expect(el.innerHTML).to.match(/this is a unit test error/);
+                            
+                    el = window.document.evaluate('//ul[@class = "__uploader_file_list"]/li[position() = 2]/a[position() = 1]', window.document, null, window.XPathResult.ANY_TYPE, null); 
+                    el = el.iterateNext();
+                    expect(el).to.be.not.null;
+                    
+                    //re-click start button
+                    jsdom_event(el);
+
+                    continue;
+                        
+                }
+                    
+                expect(['completed', 'progress']).to.be.include(ev.type);
+                
+                if('completed' === ev.type)
+                {
+                    //we are processing completed before the file uploader
+                    upm_event_prepare(upload_manager);
+                    expect(progress).to.be.greaterThan(0);
+                    expect(count).to.be.greaterThan(0);
+                    return;
+                }
+
+                let el = window.document.evaluate('//ul[@class = "__uploader_file_list"]/li[position() = 4]/div[position() = 1]', window.document, null, window.XPathResult.ANY_TYPE, null); 
+                el = el.iterateNext();
+
+                expect(el.innerHTML).to.not.match(/this is a unit test error/);
+
+                el = window.document.evaluate('//ul[@class = "__uploader_file_list"]/li[position() = 3]/span', window.document, null, window.XPathResult.ANY_TYPE, null); 
+                el = el.iterateNext();
+
+                expect(el.innerHTML).to.match(/(\d\.\d\d%)|()/);
+
+                const keys = Object.keys(window.localStorage);
+
+                expect(keys.length).to.be.eq(1);
+                progress++;
+            }
+
+            //let's wait after the file process the completed
+            const ev = await upm_event_wait(upload_manager);
+
+            expect(ev.type).to.be.eq('completed');
+
+            const keys = Object.keys(window.localStorage);
+
+            expect(keys.length).to.be.eq(0);
         });
    
         it('should handle restart', async () => {
 
-
-
-            const http_request = new fake.FakeRequest();
             const upload_manager = ui(window, 'jsdom', {
                 http_request : (opts) => {
 
