@@ -30,7 +30,9 @@ function jsdom_event_target(ev)
 
 function jsdom_event(target, event)
 {
-    
+    if(undefined === event)
+        event = 'click';
+
     return new Promise((resolve, reject) => {
         try{
             target['resolver'] = resolve;
@@ -244,173 +246,101 @@ describe('JSDOM', () => {
 
         it('should open and close dialog', () => {
 
-            return new Promise( (resolve, reject) => {
-
-                try{
-
-                    const div = window.document.getElementById('jsdom');
-                    const body = window.document.body;
+            const div = window.document.getElementById('jsdom');
+            const body = window.document.body;
                     
-                    expect(div.innerHTML).to.be.eq('');
-                    expect(body.childElementCount).to.be.eq(1);
+            expect(div.innerHTML).to.be.eq('');
+            expect(body.childElementCount).to.be.eq(1);
 
-                    const d1 = dialog(window, 'jsdom');
+            const d1 = dialog(window, 'jsdom');
 
-                    expect(body.childElementCount).to.be.eq(2);                    
+            expect(body.childElementCount).to.be.eq(2);                    
                     
-                    const last = body.lastElementChild;
+            const last = body.lastElementChild;
 
-                    expect(last).not.to.be.undefined;
-                    expect(last.tagName).to.be.eq('DIV');
+            expect(last).not.to.be.undefined;
+            expect(last.tagName).to.be.eq('DIV');
                     
-                    expect(last.classList.contains('cud-modal-close')).to.be.true;
+            expect(last.classList.contains('cud-modal-close')).to.be.true;
 
+            expect(body.childElementCount).to.be.eq(2);                    
 
-                    expect(body.childElementCount).to.be.eq(2);                    
+            d1.open();
 
-                    d1.open();
+            expect(last.classList.contains('cud-modal-close')).to.be.false;
 
-                    expect(last.classList.contains('cud-modal-close')).to.be.false;
+            d1.close();
+            d1.close();
 
-                    d1.close();
-                    d1.close();
+            expect(last.classList.contains('cud-modal-close')).to.be.true;
 
-                    expect(last.classList.contains('cud-modal-close')).to.be.true;
+            const div2 = window.document.createElement('div'); 
+            const att = window.document.createAttribute('id');       
+            att.value = 'd2';  
 
-                    const div2 = window.document.createElement('div'); 
-                    const att = window.document.createAttribute('id');       
-                    att.value = 'd2';  
+            div2.setAttributeNode(att);
+            body.appendChild(div2);
 
-                    div2.setAttributeNode(att);
-                    body.appendChild(div2);
+            expect(body.childElementCount).to.be.eq(3);
 
-                    expect(body.childElementCount).to.be.eq(3);
+            const d2 = dialog(window, div2, {});
 
-                    const d2 = dialog(window, div2, {});
-
-                    expect(div2.classList.contains('cud-modal-close')).to.be.true;
-                    expect(div.classList.contains('cud-modal-close')).to.be.true;
-                    d2.open(); 
-                    expect(div2.classList.contains('cud-modal-close')).to.be.false;
-
-                    //console.log(body.innerHTML);
+            expect(div2.classList.contains('cud-modal-close')).to.be.true;
+            expect(div.classList.contains('cud-modal-close')).to.be.true;
+            d2.open(); 
+            expect(div2.classList.contains('cud-modal-close')).to.be.false;
                     
-                    expect(div.classList.contains('cud-modal-close')).to.be.true;
-                    
-                    resolve();
+            expect(div.classList.contains('cud-modal-close')).to.be.true;
 
-
-                }catch(err)
-                {
-                    reject(err);
-                }
-            });
         });
 
-        it('should handle option dialog', () => {
+        it('should handle option dialog', async () => {
 
-            return new Promise( (resolve, reject) => {
-
-                try{
-
-                    const upload_manager = ui(window, 'jsdom', {
-                        http_request : () => {
-                            return http_request;
-                        }
-                    });
-
-                    const div = window.document.getElementById('jsdom');
-                    const body = window.document.body;
-
-                    const upl = div.firstElementChild;
-
-                    expect(upl.childElementCount).to.be.greaterThan(4);
-                    
-                    const open = window.document.getElementById('cu_manager_options_open');
-
-                    const dlg = window.document.getElementById('cu_manager_options_dialog');
-                    const ok  = window.document.getElementById('cu_manager_options_save');
-                    const cancel = window.document.getElementById('cu_manager_options_cancel');
-                    const size = window.document.getElementById('cu_manager_options_chunk_size');
-                    const chunk_size = upload_manager.Options.chunk_size;
-
-                    expect(open.parentElement.classList.contains('cu-manager-options')).to.be.true;
-                    expect(upl.children[4].classList.contains('cud-modal-close')).to.be.true;
-                    
-                    let do_cancel = true;
-
-                    //here dialog open
-                    jsdom_event(open, 'click').then( () => {
-                    //open.addEventListener('click', () => {
-                    //setTimeout( () => { 
-                        try{
-                         
-                     
-                            expect(dlg.classList.contains('cud-modal-close')).to.be.false;
-                            expect(size.value).to.be.eq(chunk_size.toString());
-
-                            if(do_cancel)
-                            {
-                                cancel.addEventListener('click', () => {
-                                    
-
-                                    expect(dlg.classList.contains('cud-modal-close')).to.be.true;
-                                    
-                                    //resolve();
-                                    do_cancel = false;
-
-                                    //re-open dialog 
-                                    //open.dispatchEvent(new window.Event('click'));
-
-                                    
-                                    jsdom_event(open, 'click').then( () => {
-                                        
-                                        ok.addEventListener('click', () => {
-                                
-                                            console.log(dialog.outerHTML);
-
-                                            expect(upload_manager.Options.chunk_size).to.be.eq(5);
-                                    
-                                            resolve();
-                                        });
-                                
-                                        size.value = '5';
-                                        ok.dispatchEvent(new window.Event('click'));
-                                    });
-                                });
-
-                                cancel.dispatchEvent(new window.Event('click'));
-                            }
-                            else
-                            {
-                                
-                                ok.addEventListener('click', () => {
-                                
-                                    console.log(dialog.outerHTML);
-
-                                    expect(upload_manager.Options.chunk_size).to.be.eq(5);
-                                    
-                                    resolve();
-                                });
-                                
-                                size.value = '5';
-                                ok.dispatchEvent(new window.Event('click'));
-                            }
-
-                        }catch(e){reject(e);}
-                    //}, 10);
-                    });
-                    
-                    //click on open dialog 
-                    //open.dispatchEvent(new window.Event('click'));
-                    
-
-
-                }catch(err)
-                {
-                    reject(err);
+            const upload_manager = ui(window, 'jsdom', {
+                http_request : () => {
+                    return http_request;
                 }
             });
+
+            const div = window.document.getElementById('jsdom');
+
+            const upl = div.firstElementChild;
+
+            expect(upl.childElementCount).to.be.greaterThan(4);
+                    
+            const open = window.document.getElementById('cu_manager_options_open');
+
+            const dlg = window.document.getElementById('cu_manager_options_dialog');
+            const ok  = window.document.getElementById('cu_manager_options_save');
+            const cancel = window.document.getElementById('cu_manager_options_cancel');
+            const size = window.document.getElementById('cu_manager_options_chunk_size');
+            const chunk_size = upload_manager.Options.chunk_size;
+
+            expect(open.parentElement.classList.contains('cu-manager-options')).to.be.true;
+            expect(upl.children[4].classList.contains('cud-modal-close')).to.be.true;
+
+            //here dialog open
+            await jsdom_event(open, 'click');
+                     
+            expect(dlg.classList.contains('cud-modal-close')).to.be.false;
+            expect(size.value).to.be.eq(chunk_size.toString());
+
+            //cancel dialog
+            await jsdom_event(cancel);
+
+            expect(dlg.classList.contains('cud-modal-close')).to.be.true;
+
+            //re-open dialog 
+            await jsdom_event(open);
+                                        
+            size.value = '5';
+            //click ok
+            await jsdom_event(ok);
+
+            console.log(dialog.outerHTML);
+
+            expect(upload_manager.Options.chunk_size).to.be.eq(5);
+                    
 
         });
  
