@@ -370,6 +370,8 @@ class UploadManager extends EventEmitter {
         this._opt = Object.assign(this._opt, options);
     }
 
+    get Options() {return this._opt;}
+
     _raise_error(err, kid){this.emit('error', err, kid);}
     _onProgress(sn, kid){this.emit('progress', sn, kid);}
     _onUploadComplete(kid){this.emit('completed', kid);}

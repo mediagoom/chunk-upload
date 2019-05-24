@@ -2,16 +2,21 @@
 //import * as uploader from '../client';
 
 const uploader = require('../client');
+const dialog   = require('./dialog');
 
 
 const default_options = {
     url : undefined //window.location.protocol + '//' + window.location.host + '/upload'
-    , owner : 'uploader'
     , id : { prefix : '__upm___'}
     , upm_global : '__upm__'
     , options_function : undefined //() => alert('no options available')
     , ids : {
         file_input : '__file_input'
+        , dialog: 'cu_manager_options_dialog'
+        , dialog_open: 'cu_manager_options_open'
+        , dialog_save: 'cu_manager_options_save'
+        , dialog_cancel: 'cu_manager_options_cancel'
+        , dialog_chunk_size: 'cu_manager_options_chunk_size'
     }
     , file_list_id: '__file_list__'
     , styled_file_id : '__styled_file_input__'
@@ -39,8 +44,26 @@ const default_options = {
             , quitted: '__uploader_notify_quitted' 
         }
         , hidden : '__uploader_hidden'
+        , manager : {
+            options : 'cu-manager-options'
+            
+        }
+        , dialog : 
+            {
+                modal: 'cud-modal-dialog'
+            }
     }
+    , dialog : undefined
 };
+
+function assert(boolean, description)
+{ 
+    //if(undefined === description){description = '-----'}
+    if(!boolean)
+    {
+        throw new Error(description);
+    }
+}
 
 function create_default(win)
 {
@@ -61,25 +84,37 @@ function ui_html(options, host_id)
 {
     const html = `
     <div class="${options.class_host}" id="${container_id(options, host_id)}">
-        
-        <ul id="${options.styled_file_id}" class="${options.class_uploader_folder}"  >
-            <li class="${options.class_uploader_folder_img}">&nbsp;</li>
-            <li class="${options.class_uploader_folder_click}">
-                        <a  href="#" class="">
-                    &nbsp; Select Files &nbsp; >> 
-                </a>
-            </li>
-        </ul>
     
-        <div class="${options.class_uploader_area}">
-            <input class="${options.class_uploader}" id="${options.ids.file_input}" multiple type="file" onchange='window.${options.upm_global}.selectFiles(this)' class="hidden">
+    <ul id="${options.styled_file_id}" class="${options.class_uploader_folder}"  >
+        <li class="${options.class_uploader_folder_img}">&nbsp;</li>
+        <li class="${options.class_uploader_folder_click}">
+                    <a  href="#" class="">
+                &nbsp; Select Files &nbsp; >> 
+            </a>
+        </li>
+    </ul>
 
-            <p class="${options.class_drag_text}">or drag and drop them here.</p>
-        
+    <div class="${options.class_uploader_area}">
+        <input class="${options.class_uploader}" id="${options.ids.file_input}" multiple type="file" onchange='window.${options.upm_global}.selectFiles(this)' class="hidden">
+
+        <p class="${options.class_drag_text}">or drag and drop them here.</p>
+    
+    </div>
+
+    <div class="${options.class.manager.options}" >
+        <a id="${options.ids.dialog_open}" class="${options.class_uploader_button}"><span class="${options.class_btn.options}"></span> <span>options</span></a>
+    </div>
+
+    <div id="${options.file_list_id}" class="">
+    </div>
+
+    <div id="${options.ids.dialog}" class="${options.class.dialog.modal}">
+        <div>     
+                <input id="${options.ids.dialog_chunk_size}" />
         </div>
 
-        <div id="${options.file_list_id}" class="">
-        </div>
+        <a id="${options.ids.dialog_save}" class="${options.class_uploader_button}"><span class="${options.class_btn.play}"></span> <span>start</span></a>
+        <a id="${options.ids.dialog_cancel}" class="${options.class_uploader_button}"><span class="${options.class_btn.quit}"></span> <span>quit</span></a>
     </div>
     `;
 
@@ -95,13 +130,54 @@ function attach_chunk_ui(win, div, options, host_id)
 {
     let chunk_container = win.document.getElementById(container_id(options, host_id));
 
-    if(null === chunk_container)
-    {
+    if(null === chunk_container){
+    
         div.innerHTML = ui_html(options, div.id);
 
         const styled_file = win.document.getElementById(options.styled_file_id);
         styled_file.addEventListener('click', () => click_file(win, options.ids.file_input) );
+        
+        const dlg = win.document.getElementById(options.ids.dialog);
+
+        assert(null !== dlg);
+
+        const dlg_manager = dialog(win, dlg, {});
+
+        const opt_open = win.document.getElementById(options.ids.dialog_open);
+        const size = win.document.getElementById(options.ids.dialog_chunk_size);
+        const ok = win.document.getElementById(options.ids.dialog_save);
+
+        assert(null !== opt_open);
+        assert(null != size);
+        assert(null != ok);
+
+        const myself  = win[options.upm_global];
+        opt_open.addEventListener('click', () => {
+            size.value = myself.Options.chunk_size;             
+            dlg_manager.open();
+        });
+
+        const cancel = win.document.getElementById(options.ids.dialog_cancel);
+
+        assert(null !== cancel);
+
+        cancel.addEventListener('click', () => {
+            dlg_manager.close();
+        });
+
+        ok.addEventListener('click', () => {
+            
+            const val = Number.parseInt(size.value);
+
+            //if(Nan === val)
+
+            myself.Options.chunk_size = val;
+
+
+            dlg_manager.close();
+        });
     }
+
 }
 
 function file_ui(win, id, options)
@@ -376,16 +452,25 @@ module.exports = function(win, div_id, options)
         upm.on('completed', (id) => on_completed(id, options));
         */
 
+
+        //expose ui dialog to external world
+        //upm['dialog'] = (dialog_id, dialog_options) => { return dialog(win, dialog_id, dialog_options);};
+
     }
 
     if(null != div)
     {
         attach_chunk_ui(win, div, options, div.id);
-
+        
         const keys = Object.keys(win[options.upm_global].uploader);
 
         for(let idx = 0; idx < keys.length; idx++)
             add_file_ui(win, keys[idx], options);
+        
+    }
+    else
+    {
+        throw new Error('invalid container');
     }
     
     return win[options.upm_global];

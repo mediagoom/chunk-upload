@@ -6,16 +6,16 @@ const default_options = {
     }
     , class : {
         modal : 'cud-modal'
+        , close : 'cud-modal-close'
     }
-    , open_button : undefined
 };
 
 function create_default(win)
 {
+    const opt = Object.assign({}, default_options);
+    opt.win = win;
 
-    default_options.win = win;
-
-    return default_options;
+    return opt;
 }
 
 function create_modal(options)
@@ -42,6 +42,33 @@ function create_modal(options)
     body.appendChild(div);
 }
 
+function get_targets(options)
+{
+    const doc = options.win.document;
+    const modal = doc.getElementById(options.ids.modal);
+    const dialog = doc.getElementById(options.dialog_id);
+
+    return {modal, dialog};
+}
+
+function close(options)
+{
+    const targets = get_targets(options);
+
+    targets.dialog.classList.add(options.class.close);
+    targets.modal.classList.add(options.class.close);
+}
+
+function open(options)
+{
+    const targets = get_targets(options);
+
+    targets.dialog.classList.remove(options.class.close);
+    targets.modal.classList.remove(options.class.close);
+
+}
+
+
 
 module.exports = function(win, div_id, options)
 {
@@ -57,5 +84,14 @@ module.exports = function(win, div_id, options)
     else
         div = div_id;
 
+    options.dialog_id = div.id;
+
     create_modal(options);
+
+    close(options);
+
+    return {
+        close: () => {close(options);}
+        , open: () => { open(options);}
+    };
 };
