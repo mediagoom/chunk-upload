@@ -17,6 +17,31 @@ const html = `
     </body>
 </html>`;
 
+function jsdom_event_target(ev)
+{
+    const target = ev.srcElement;
+    const event = ev.type;
+    const resolve = target['resolver'];
+
+    target.removeEventListener(event, jsdom_event_target);
+
+    resolve();
+}
+
+function jsdom_event(target, event)
+{
+    
+    return new Promise((resolve, reject) => {
+        try{
+            target['resolver'] = resolve;
+
+            target.addEventListener(event, jsdom_event_target);
+            target.dispatchEvent(new target.ownerDocument.defaultView.Event(event));
+
+        }catch(e){reject(e);}
+    });
+}
+
 
 function file_reader(window/*, file*/)
 {
@@ -282,7 +307,7 @@ describe('JSDOM', () => {
             });
         });
 
-        it('should handle string', () => {
+        it('should handle option dialog', () => {
 
             return new Promise( (resolve, reject) => {
 
@@ -315,10 +340,11 @@ describe('JSDOM', () => {
                     let do_cancel = true;
 
                     //here dialog open
-                    open.addEventListener('click', () => {
+                    jsdom_event(open, 'click').then( () => {
+                    //open.addEventListener('click', () => {
                     //setTimeout( () => { 
                         try{
-                            
+                         
                      
                             expect(dlg.classList.contains('cud-modal-close')).to.be.false;
                             expect(size.value).to.be.eq(chunk_size.toString());
@@ -334,7 +360,23 @@ describe('JSDOM', () => {
                                     do_cancel = false;
 
                                     //re-open dialog 
-                                    open.dispatchEvent(new window.Event('click'));
+                                    //open.dispatchEvent(new window.Event('click'));
+
+                                    
+                                    jsdom_event(open, 'click').then( () => {
+                                        
+                                        ok.addEventListener('click', () => {
+                                
+                                            console.log(dialog.outerHTML);
+
+                                            expect(upload_manager.Options.chunk_size).to.be.eq(5);
+                                    
+                                            resolve();
+                                        });
+                                
+                                        size.value = '5';
+                                        ok.dispatchEvent(new window.Event('click'));
+                                    });
                                 });
 
                                 cancel.dispatchEvent(new window.Event('click'));
@@ -360,7 +402,7 @@ describe('JSDOM', () => {
                     });
                     
                     //click on open dialog 
-                    open.dispatchEvent(new window.Event('click'));
+                    //open.dispatchEvent(new window.Event('click'));
                     
 
 
