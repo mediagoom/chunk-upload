@@ -44,6 +44,17 @@ function jsdom_event(target, event)
     });
 }
 
+function jsdom_xpath(win, xpath, parent)
+{
+    if(undefined === parent)
+        parent = win.document;
+
+    let el = win.document.evaluate(xpath, parent, null, win.XPathResult.ANY_TYPE, null); 
+    el = el.iterateNext();
+    
+    return el;
+}
+
 function upm_event(event_manager, args, type)
 {
 
@@ -117,9 +128,13 @@ function file_reader(window/*, file*/)
 
 async function process(window, upload_manager)
 {
-    const file = await file_reader(window); 
+    const file = await file_reader(window);
+    
 
     const input = window.document.getElementById(upload_manager.options.ids.file_input);
+
+    await jsdom_event(input);
+
     jutil.implForWrapper(input.files).push(file);
     //input.dispatchEvent(new window.Event('change'));
 
@@ -282,6 +297,52 @@ describe('JSDOM', () => {
             }
 
         });
+
+        it('should handle pause and quit', async ()=>{
+            
+            http_request.wait = 1;
+            
+            const upload_manager = ui(window, 'jsdom', {
+                http_request : (opts) => {
+
+                    http_request.validate(expect, opts);
+
+                    return http_request;
+                }
+                , chunk_size : 3
+            });
+
+            upm_event_prepare(upload_manager);
+            await process(window, upload_manager);
+
+            let w = true;
+
+            while(w)
+            {
+                const ev = await upm_event_wait(upload_manager);
+
+                expect(['progress']).to.be.include(ev.type);
+
+                let pause = jsdom_xpath(window, '//ul[@class = "__uploader_file_list"]');
+                expect(pause).not.to.be.null;
+                const quite = jsdom_xpath(window, './li[position() = 2]/a[position() = 2]', pause);
+                pause = jsdom_xpath(window, './li[position() = 2]/a[position() = 1]', pause);
+
+                await jsdom_event(pause);
+
+                //console.log(pause.innerHTML);
+                expect(pause.children[1].innerHTML).to.match(/start/);
+
+                await jsdom_event(quite);
+
+                w = false;
+            }
+
+            const div = window.document.getElementById('jsdom');
+            //redraw
+            ui(window, div);
+        });
+
     });
 
     describe('Dialog', ()=> {
