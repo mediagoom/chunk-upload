@@ -197,7 +197,6 @@ describe('JSDOM', () => {
 
             process(window, upload_manager);
                     
-                    
             let w = true;
             let count = 0;
             let progress = 0;
@@ -444,6 +443,13 @@ describe('JSDOM', () => {
                     
 
         });
+        
+        it('should handle invalid id', () => {
+
+            expect( () => ui(window, 'xjsdom') ).to.throw(/invalid container/);
+                
+        });
+
  
     });
 });

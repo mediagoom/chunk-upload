@@ -391,9 +391,11 @@ function new_file(win, id, options)
     myself.on('progress', function (num) {
 
         const div = win.document.getElementById(id);
-        if(null === div) {return;}
+        
+        assert(null !== div);
+        
         const children = get_children(div);
-
+        
         var d = new Number(num);
         var x = new String(d.toFixed(0)) + '%';
         var s = new String(d.toFixed(2)) + '%';
@@ -458,20 +460,14 @@ module.exports = function(win, div_id, options)
 
     }
 
-    if(null != div)
-    {
-        attach_chunk_ui(win, div, options, div.id);
-        
-        const keys = Object.keys(win[options.upm_global].uploader);
-
-        for(let idx = 0; idx < keys.length; idx++)
-            add_file_ui(win, keys[idx], options);
-        
-    }
-    else
-    {
-        throw new Error('invalid container');
-    }
+    assert(null != div, 'invalid container');
     
+    attach_chunk_ui(win, div, options, div.id);
+        
+    const keys = Object.keys(win[options.upm_global].uploader);
+
+    for(let idx = 0; idx < keys.length; idx++)
+        add_file_ui(win, keys[idx], options);
+        
     return win[options.upm_global];
 };
