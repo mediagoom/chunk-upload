@@ -96,6 +96,7 @@ $text-color:  #42b983;
     display: inline;
     top: -0.3em;
     position: relative;
+    padding-right: 0.6em;
     //margin-top: 0.3em;
 }
 
@@ -214,6 +215,10 @@ $text-color:  #42b983;
     @include button-image('../../assets/gear.svg');
 }
 
+.__uploader_btn_img_ok {
+    @include button-image('../../assets/OK.svg');
+}
+
 .__uploader_notify {
     border: 0.07em solid;
     border-radius: 0.2em;
@@ -236,3 +241,18 @@ $text-color:  #42b983;
 
 //dialog styles will override these ones
 @import "./dialog.scss";
+
+.cu-modal-config-area {
+    margin: auto;
+    padding: 2em;
+}
+
+.cu-modal-config-chunk-size {
+    border: 5px solid white;
+    box-shadow:
+        inset 0 0 8px  rgba(0, 0, 0, 0.1),
+        0 0 16px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.5);
+    margin: 0 0 10px 0;
+}

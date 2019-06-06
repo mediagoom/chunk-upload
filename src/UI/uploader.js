@@ -34,6 +34,7 @@ const default_options = {
         , play : '__uploader_btn_img_play'
         , quit: '__uploader_btn_img_quit'
         , gear: '__uploader_btn_img_gear'
+        , ok: '__uploader_btn_img_ok'
     }
     , class : {
         notify : {
@@ -47,10 +48,13 @@ const default_options = {
             options : 'cu-manager-options'
             , btn_open: 'cu-manager-open'
             , gear: 'cu-manager-gear'
+            
         }
         , dialog : 
             {
                 modal: 'cud-modal-dialog'
+                , config: 'cu-modal-config-area'
+                , chunk_size: 'cu-modal-config-chunk-size'
             }
     }
     , dialog : undefined
@@ -118,12 +122,15 @@ function ui_html(options, host_id)
     </div>
 
     <div id="${options.ids.dialog}" class="${options.class.dialog.modal}">
-        <div>     
-                <input id="${options.ids.dialog_chunk_size}" />
+        
+        <div class="${options.class.dialog.config}" >  
+            <label for="${options.ids.dialog_chunk_size}">chunk size</label>   
+                <input id="${options.ids.dialog_chunk_size}" type="number" class="${options.class.dialog.chunk_size}" />
         </div>
 
-        <a id="${options.ids.dialog_save}" class="${options.class_uploader_button}"><span class="${options.class_btn.play}"></span> <span>start</span></a>
-        <a id="${options.ids.dialog_cancel}" class="${options.class_uploader_button}"><span class="${options.class_btn.quit}"></span> <span>quit</span></a>
+        <a id="${options.ids.dialog_cancel}" class="${options.class_uploader_button}"><span class="${options.class_btn.quit}"></span> <span>cancel</span></a>
+        <a id="${options.ids.dialog_save}" class="${options.class_uploader_button}"><span class="${options.class_btn.ok}"></span> <span>apply</span></a>
+        
     </div>
     `;
 
