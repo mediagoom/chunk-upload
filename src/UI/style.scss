@@ -20,13 +20,13 @@ $text-color:  #42b983;
 
 .__uploader_file {
     opacity: 0;
-    width: 100%;
-    height: 100%;
+    //width: 100%;
+    //height: 100%;
     position: absolute;
     left: 0;
     top: 0;
     cursor: pointer;
-    z-index: 10;
+    //z-index: 10;
 }
 
 .__uploader_file_upload_area {
@@ -39,8 +39,13 @@ $text-color:  #42b983;
     position: relative;
     min-width: 12.8em;
     text-align: center;
+    z-index: 10;
 
     @extend %uploader;
+}
+
+.is-dragover {
+    background-color: grey;
 }
 
 .__uploader_drag_text {
@@ -53,11 +58,9 @@ $text-color:  #42b983;
     display: flex;
     justify-content: flex-start;
     align-items: center;
-
-    //list-style: square inside svg($value1 : 'upload-folder-icon.svg');
     list-style: none;
-    margin-block-start: 0;
-    padding-inline-start: 0;
+    margin-block-start: 0em;
+    padding-inline-start: 0em;
 
     a {
         text-decoration: none;
@@ -85,6 +88,7 @@ $text-color:  #42b983;
     padding-right: 0.2em;
     cursor: pointer;
     flex-direction: row;
+
     @extend %flex;
 }
 
@@ -92,36 +96,37 @@ $text-color:  #42b983;
     display: inline;
     top: -0.3em;
     position: relative;
-    margin-top: 0.3em;
+    padding-right: 0.6em;
+    //margin-top: 0.3em;
 }
 
 .__uploader_folder_img {
     list-style: none;
     padding: 1.2em 1.2em 1.2em 1.2em;
-    margin: 0;
-    margin-bottom: 0.5em;
+    margin: 0em;
+    margin-bottom: .5em;
     margin-left: 1em;
     background-repeat: no-repeat;
     background-position: left center;
     background-size: 2em;
-    background-image: svg($value1 : 'upload-folder-icon.svg');
+    background-image: unquote("svg-load('../../assets/upload-folder-icon.svg')");
     filter: invert(100%) brightness(0.1) sepia(1) hue-rotate(124deg) saturate(45);
 }
 
 .__uploader_button {
-    border: 0.07em solid;
-    border-radius: 0.2em;
+    border: .07em solid;
+    border-radius: .2em;
     border-color: $text-color;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 0.8em;
-    margin-bottom: 0.8em;
+    margin-top: .8em;
+    margin-bottom: .8em;
     width: 18em;
     height: 2em;
-    padding: 0.1em;
+    padding: .1em;
     cursor: pointer;
     display: table-cell;
-    padding-top: 0.7em;
+    padding-top: .7em;
     text-align: center;
 }
 
@@ -131,20 +136,20 @@ $text-color:  #42b983;
     flex-direction: column;
 
     li {
-        margin: 0.2em 0 0.2em 0;
+        margin: .2em 0em .2em 0em;
         width: 100%;
         text-align: center;
     }
 }
 
 .__uploader_percentage {
-    border-radius: 0.2em;
+    border-radius: .2em;
     background-color: lightgrey;
     height: 2em;
     position: relative;
 
     div {
-        border-radius: 0.2em;
+        border-radius: .2em;
         position: absolute;
         width: 10em;
         height: 2em;
@@ -167,7 +172,7 @@ $text-color:  #42b983;
     span {
         z-index: 100;
         position: absolute;
-        left: 0;
+        left: 0em;
         width: 100%;
     }
 }
@@ -179,32 +184,39 @@ $text-color:  #42b983;
 }
 
 @mixin button-image($file) {
-
     padding: 0em .8em 0em 1.2em;
-    margin-left: -1.4em; 
-    margin: 0;
+    //margin-left: -1.4em;
+    margin: 0em 0em 0em -1.4em;
     margin-bottom: .5em;
     background-repeat: no-repeat;
-	background-position: left center;
-	background-size: 2em;
-    background-image: svg($value1 : $file);
+    background-position: left center;
+    background-size: 1.6em;
+    background-image: unquote("svg-load(") $file unquote(")");
     filter: invert(100%) brightness(0.1) sepia(1) hue-rotate(124deg) saturate(45);
 }
 
 .__uploader_btn_img_options {
-    @include button-image('options.svg');
+    @include button-image('../../assets/options.svg');
 }
 
 .__uploader_btn_img_pause {
-    @include button-image('pause.svg');
+    @include button-image('../../assets/pause.svg');
 }
 
 .__uploader_btn_img_play {
-    @include button-image('play.svg');
+    @include button-image('../../assets/play.svg');
 }
 
 .__uploader_btn_img_quit {
-    @include button-image('quit.svg');
+    @include button-image('../../assets/quit.svg');
+}
+
+.__uploader_btn_img_gear {
+    @include button-image('../../assets/gear.svg');
+}
+
+.__uploader_btn_img_ok {
+    @include button-image('../../assets/OK.svg');
 }
 
 .__uploader_notify {
@@ -225,4 +237,22 @@ $text-color:  #42b983;
 .__uploader_notify_success {
     border-color: $text-color;
     background-color: $bg-color;
+}
+
+//dialog styles will override these ones
+@import "./dialog.scss";
+
+.cu-modal-config-area {
+    margin: auto;
+    padding: 2em;
+}
+
+.cu-modal-config-chunk-size {
+    border: 5px solid white;
+    box-shadow:
+        inset 0 0 8px  rgba(0, 0, 0, 0.1),
+        0 0 16px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.5);
+    margin: 0 0 10px 0;
 }

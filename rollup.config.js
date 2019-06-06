@@ -1,5 +1,3 @@
-import {readFileSync} from 'fs';
-import {resolve as path_resolve}  from 'path';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import built_ins from 'rollup-plugin-node-builtins';
@@ -9,30 +7,26 @@ import json from 'rollup-plugin-json';
 import rollup_sass from 'rollup-plugin-sass';
 import replace from 'rollup-plugin-replace';
 import autoprefixer from 'autoprefixer';
+import inline_svg from 'postcss-inline-svg';
 import postcss from 'postcss';
 import dbgFunc from 'debug';
-//import inliner from 'sass-inline-svg';
-import sass from 'sass';
-
-
+/**
+ * debug function
+ */
 const dbg = dbgFunc('chunk-upload:rollup');
-
-function svg_inline(value)
-{
-    const path = path_resolve('./assets', value.dartValue.a);
-    const content = readFileSync(path);
-
-    const dart_value = new sass.types.String('url("data:image/svg+xml;base64,' + content.toString('base64') + '")');
-    return dart_value;
-}
-
+/**
+ * This is the function to run post css from the 
+ * sass plug-in
+ * @param {*} css 
+ * @param {*} id 
+ */
 function run_postcss(css, id)
 {
     const options = {
         from : id
     };
 
-    const processor =  postcss([autoprefixer]);
+    const processor =  postcss([autoprefixer, inline_svg()]);
 
     return new Promise((resolve, reject) =>{
         
@@ -43,23 +37,36 @@ function run_postcss(css, id)
             resolve(result.css); 
         }).catch(error => { reject(error); });
     });
-    
 }
-
+/**
+ * This is the default sass configuration
+ * for inserting the css in the js bundle
+ */
 const sass_plugin = rollup_sass({
     
     processor: run_postcss
-        
     , insert: true
-
     //sass options
     , options: {
         functions: {
-            'svg($value1)' : svg_inline
+            //'svg-load($value1)' : svg_inline
         }
     }
 });
-
+/**
+ * This is the configuration for outputting a processed
+ * css for who want to process the js himself but not the css
+ */
+const sass_plugin_css = rollup_sass({
+    processor : run_postcss
+    , insert : false
+    , output: 'lib/chunk-uploader.css'
+    , options: { indentWidth : 4 }
+});
+/**
+ * This is the plug-in to do some replace for 
+ * better targeting the browser
+ */
 const resolve_plugin = replace ({
     include: '**/httprequest.js'
     , delimiters: ['', '']
@@ -68,10 +75,9 @@ const resolve_plugin = replace ({
         , 'require(\'superagent-proxy\')(request);' : ''
     }
 });
-
-
-
-
+/**
+ * Common Plugins
+ */
 const g_plugins = [
     resolve({
         preferBuiltins: true
@@ -89,7 +95,6 @@ const g_plugins = [
     , json()
     , babel({
         include : ['src/**', 'node_modules/superagent/**']
-        
         //exclude: 'node_modules/**'
         , babelrc: false
         , presets: [['@babel/env', { 
@@ -110,13 +115,16 @@ const g_plugins = [
         //, externalHelpers: true
     })
 ];
-
+/**
+ * UI plugin
+ */
 let ui_plugins = [resolve_plugin, sass_plugin];
 ui_plugins = ui_plugins.concat(g_plugins);
 
 dbg('ui_plugins', ui_plugins.length);
-
-
+/**
+ * The server side processing plugin
+ */
 const g_plugins_server = [
     resolve_plugin
     , commonjs()
@@ -133,6 +141,9 @@ const g_server_external = ['events', 'superagent', 'superagent-proxy'];
 
 
 export default [
+    /**
+     * The client side browser module without UI
+     */
     {
         external: []
         , input: 'src/client.js'
@@ -146,14 +157,15 @@ export default [
             , exports: 'named'
             , globals: []
         }
-        
         , plugins: g_plugins
     }
+    /**
+     * The client side browser module with UI
+     */ 
     , {
         external: []
         , input: 'src/UI/index.js'
         , output: 
-      
         {
             file: 'lib/chunk-uploader-ui.js'
             , sourcemap: true
@@ -162,9 +174,11 @@ export default [
             , exports: 'named'
             , globals: []
         }
-        
         , plugins: ui_plugins
     }
+    /**
+     * Transpiled version for node usage
+     */
     , {
         external: g_server_external 
         , input: 'src/client.js'
@@ -180,6 +194,9 @@ export default [
     
         , plugins: g_plugins_server
     }
+    /**
+     * Transpiled version for node usage with UI
+     */
     ,{
         external: g_server_external
         , input: 'src/UI/uploader.js'
@@ -193,6 +210,11 @@ export default [
             , globals: []
         }
         , plugins: g_plugins_server
+    }
+    ,{
+        input: 'src/UI/style.js'
+        , plugins: [sass_plugin_css]
+        , output : {format: 'iife', name: 'style', file: 'lib/empty.js'}
     }
     ,]
 ;

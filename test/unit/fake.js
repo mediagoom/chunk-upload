@@ -7,6 +7,14 @@ const fake_total_size = process.env['FAKE-SIZE'] || 220;
 const fake_name = 'FAKE.EXE';
 const chunk_size = process.env['CHUNK-SIZE'] || 50;
 
+function Wait(ms, ret)
+{
+    return new Promise((resolve) => {
+        setTimeout( () => {resolve(ret);}, ms);
+    });
+}
+
+
 class FakeStorage {
 
     constructor(init)
@@ -40,7 +48,7 @@ class FakeRequest {
     {
         this.size = 0;
         this.requests = 0;
-
+        this.wait = 0;
         this.throw_error = (typeof throw_error === 'undefined')?false:throw_error;
     }
 
@@ -120,7 +128,12 @@ class FakeRequest {
 
         this.size += body.length;
 
-        return new Promise( (resolve/*, reject*/) => {resolve( {status: 200} );});
+        const ret = {status: 200}; 
+
+        if(0 >= this.wait)
+            return new Promise( (resolve/*, reject*/) => {resolve( ret );});
+
+        return Wait(this.wait, ret);
     }
 }
 
