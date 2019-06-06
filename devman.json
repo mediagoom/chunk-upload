@@ -19,8 +19,10 @@
         }
         ,{
           "name" : "local-rollup-live"
-          , "watch" : ["rollup.config.js"]
-          , "cmd" : {"proc": "npm", "args": ["run", "build", "--", "-w"]}
+          , "xx-watch" : ["rollup.config.js"]
+          , "watch" : ["rollup.config.js", "./src/**/*.js", "./src/**/*.scss"]
+          , "xx-cmd" : {"proc": "npm", "args": ["run", "build", "--", "-w"]}
+          , "cmd" : {"proc": "npm", "args": ["run", "build"]}
           , "options" : {  "shell" : true }
         }
     ]

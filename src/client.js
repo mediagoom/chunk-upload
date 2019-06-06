@@ -380,7 +380,7 @@ class UploadManager extends EventEmitter {
     {
         if(undefined !== this.uploader[id])
         {
-            throw new Error('uploader already exist');
+            throw new Error('uploader already exist ' + id);
         }
 
         let op = Object.assign(this._opt, options);

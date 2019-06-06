@@ -1,8 +1,5 @@
 @charset "utf-8";
 
-$bg-color : rgba(64, 170, 107, 0.3);
-$text-color:  #42b983;
-
 .cud-modal {
     position: fixed;
     top: 0;
@@ -43,4 +40,22 @@ $text-color:  #42b983;
     height: 100%;
     overflow: auto;
     padding: 20px 50px 20px 20px;
+}
+
+.cu-manager-options {
+    margin: 3.5em auto;
+    width: 2.5em;
+    height: 2.5em;
+    z-index: 15;
+}
+
+.cu-manager-open {
+    display: inline;
+    padding: 0.4em;
+    z-index: 18;
+}
+
+.cu-manager-gear {
+    margin: auto;
+    padding: 0.2em .78em;
 }
