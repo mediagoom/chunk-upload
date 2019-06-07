@@ -1,4 +1,4 @@
-/* global Blob, FileReader */
+/* global */
 const superagent = require('superagent');
 
 let check_proxy = function(){};
@@ -72,8 +72,7 @@ function _req(opts, resolve, reject)
             reject(error);
         }
         else{
-            
-
+           
             let statusCode = res.status;
                 
             if(res.status >= 200 && res.status < 300)

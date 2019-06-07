@@ -449,7 +449,12 @@ describe('JSDOM', () => {
                 const quite = jsdom_xpath(window, './ul[position() = 1]/li[position() = 2]/a[position() = 2]', parent);
                 expect(quite).not.to.be.null;
                 await jsdom_event(quite);
-                //console.log('*****1.1', parent.innerHTML);
+
+                const msg = jsdom_xpath(window, './ul[position() = 1]/li[position() = 4]', parent); 
+                //console.log('*****1.1', msg.outerHTML);
+
+                //TODO:
+                //expect(msg.classList.contains(upload_manager.options.class.hidden)).to.be.false;
                         
                 await process(window, upload_manager, 'pause.txt', true, 2);
 
