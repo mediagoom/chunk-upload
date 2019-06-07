@@ -11,7 +11,9 @@ out.log
 .vscode/
 geckodriver/
 uploader/
-test/
+test/unit/
+test/e2e/
+test/integration/*.spec.js
 assets/
 .nyc_output/
 
