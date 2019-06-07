@@ -51,7 +51,7 @@
     "@babel/plugin-external-helpers": "7.2.0",
     "@babel/plugin-transform-object-assign": "7.2.0",
     "@babel/preset-env": "7.3.4",
-    "@mediagoom/devman": "0.0.11",
+    "@mediagoom/devman": "0.0.12",
     "autoprefixer": "^9.5.0",
     "babel-cli": "^6.26.0",
     "babel-plugin-istanbul": "^5.1.1",
