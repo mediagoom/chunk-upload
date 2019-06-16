@@ -79,7 +79,7 @@
     "rollup-plugin-sass": "^1.1.0",
     "sass": "^1.7.2",
     "saucelabs": "^2.1.3",
-    "selenium-webdriver": "^4.0.0-alpha.1",
+    "selenium-webdriver": "4.0.0-alpha.1",
     "shx": "^0.3.2",
     "stylelint-config-standard": "^18.2.0",
     "supertest": "^4.0.2"
