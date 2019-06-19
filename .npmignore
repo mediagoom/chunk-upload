@@ -1,9 +1,11 @@
 *.*~
 *.swp
+*.tar.gz
 node_modules/
 .gitignore
-.gitattibutes
-.travis
+.gitattributes
+.travis.yml
+.style
 gulpfile.js
 sample/
 out.log
@@ -14,7 +16,12 @@ uploader/
 test/unit/
 test/e2e/
 test/integration/*.spec.js
-assets/
 .nyc_output/
+version.py
+rollup.config.js
+.stylelintrc
+.eslintrc
+coverage.lcov
+devman.json
 
 

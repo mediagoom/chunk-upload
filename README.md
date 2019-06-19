@@ -28,6 +28,7 @@ npm i -S @mediagoom/chunk-upload
 ## Server
 
 After installing in your express server add:
+
 ```javascript
 const uploader  = require('@mediagoom/chunk-upload');
 
@@ -60,15 +61,15 @@ import {UploadManager} from '@mediagoom/chunk-upload/lib';
 To use the client ui module use:
 
 ```javascript
-import {build} from '@mediagoom/chunk-upload/lib/ui';
-
-
+import ui from '@mediagoom/chunk-upload/lib/ui';
 ```
 
 To use the client css:
+
 ```bash
 
-npm i -D sass
+npm i -D postcss-inline-svg
+npm i -D postcss-loader
 
 ```
 
@@ -76,32 +77,41 @@ If you use webpack in your webpack.config.js
 
 ```javascript
 
-const sass = require('node-sass');
-const readFileSync = require('fs').readFileSync;
-
-
-function svg_inline(value)
-{
-    const val = value.getValue();
-    const path = path.resolve('./assets', val);
-    
-    const content = readFileSync(path);
-
-    return new sass.types.String('url("data:image/svg+xml;base64,' + content.toString('base64') + '")');
-}
+const inline_svg = require('postcss-inline-svg')(
+    {
+        paths : [
+            path.normalize(path.join(__dirname, './node_modules/@mediagoom/chunk-upload/src/ui'))
+        ]
+    }
+);
 
 ..........
 
-            test: /\.scss$/
+           ,{
+                test: /\.scss$/
                 ,use: [
-                  
+                    'vue-style-loader'
                     ,'css-loader'
-                    , { loader: 'sass-loader'
-                        , options: {
-                            functions: {
-                                'svg-load($value1)' : svg_inline
-                            }
+                    , {
+                        loader: 'postcss-loader'
+                        ,options: {
+                            ident: 'postcss'
+                            ,plugins: [
+                                inline_svg
+                            ]
                         }
                     }
+                    , { loader: 'sass-loader'}
+                    , { loader: 'sass-resources-loader'
+                        , options: {
+                            sourceMap: true
+                            ,resources: [
+                                path.resolve(__dirname, './src/style/_variables.scss') 
+                                , path.resolve(__dirname, './node_modules/@mediagoom/chunk-upload/src/UI/style.scss')
+                                ,]
+                        }
+                    }
+                ]
+            }
 
 ```
