@@ -54,7 +54,7 @@
     "@mediagoom/devman": "0.0.12",
     "autoprefixer": "^9.5.0",
     "babel-cli": "^6.26.0",
-    "babel-plugin-istanbul": "^5.1.1",
+    "babel-plugin-istanbul": "^6.0.0",
     "chai": "^4.2.0",
     "chai-files": "^1.4.0",
     "debug": "^4.1.1",
