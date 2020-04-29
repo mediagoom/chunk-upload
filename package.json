@@ -46,7 +46,7 @@
   },
   "homepage": "https://github.com/mediagoom/chunk-upload#readme",
   "devDependencies": {
-    "@babel/core": "7.5.5",
+    "@babel/core": "7.9.6",
     "@babel/helper-module-imports": "7.0.0",
     "@babel/plugin-external-helpers": "7.2.0",
     "@babel/plugin-transform-object-assign": "7.2.0",
