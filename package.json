@@ -29,7 +29,9 @@
     "mv-uploader": "shx mv ./uploader/coverage.json ./.nyc_output",
     "eslint": "eslint ./src/**/*.js ./test/**/*.js ",
     "test-all": "run-s build test integration start test-client e2e stop",
-    "live": "live-server --mount=/:./sample --proxy=/upload:http://localhost:3000/upload"
+    "live": "live-server --mount=/:./sample --proxy=/upload:http://localhost:3000/upload",
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -86,6 +88,8 @@
   },
   "dependencies": {
     "superagent": "^5.0.6",
-    "superagent-proxy": "^2.0.0"
-  }
+    "superagent-proxy": "^3.0.0",
+    "@snyk/protect": "latest"
+  },
+  "snyk": true
 }
