@@ -85,7 +85,7 @@
     "supertest": "^4.0.2"
   },
   "dependencies": {
-    "superagent": "^5.0.6",
+    "superagent": "^7.0.2",
     "superagent-proxy": "^2.0.0"
   }
 }
