@@ -86,6 +86,6 @@
   },
   "dependencies": {
     "superagent": "^5.0.6",
-    "superagent-proxy": "^2.0.0"
+    "superagent-proxy": "^2.1.0"
   }
 }
